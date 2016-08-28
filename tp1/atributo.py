@@ -12,9 +12,9 @@ class CantidadDeAparicionesDePalabra(Atributo):
         self._palabra = palabra
 
     def extraer_de(self, mensaje):
-        cantidad_de_apariciones_de_palabra_en_el_cuerpo = mensaje.cuerpo().count(
+        cantidad_de_apariciones_de_palabra_en_el_cuerpo = mensaje.cuerpo.count(
             self._palabra)  # TODO: mejor con regexps, fijarse como hacer, por el tema de case insensitive y demas
-        cantidad_de_apariciones_de_palabra_en_el_asunto = mensaje.asunto().count(self._palabra)
+        cantidad_de_apariciones_de_palabra_en_el_asunto = mensaje.metadata.get('subject', '').count(self._palabra)
         return cantidad_de_apariciones_de_palabra_en_el_cuerpo + cantidad_de_apariciones_de_palabra_en_el_asunto
 
 

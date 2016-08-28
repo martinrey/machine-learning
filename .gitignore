@@ -1,1 +1,4 @@
 .idea
+tp1/cache/lista_de_mensajes.cache
+tp1/datos/ham_txt.json
+tp1/datos/spam_txt.json
