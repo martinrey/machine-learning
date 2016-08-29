@@ -26,3 +26,23 @@ class CantidadDeAparicionesDeViagra(CantidadDeAparicionesDePalabra):
 class CantidadDeAparicionesDeVicodin(CantidadDeAparicionesDePalabra):
     def __init__(self):
         super(CantidadDeAparicionesDeVicodin, self).__init__("Vicodin")
+
+class CantidadDeAparicionesDeHtml(CantidadDeAparicionesDePalabra):
+    def __init__(self):
+        super(CantidadDeAparicionesDeHtml, self).__init__("html")
+
+class CantidadDeAparicionesDePunto(CantidadDeAparicionesDePalabra):
+    def __init__(self):
+        super(CantidadDeAparicionesDePunto, self).__init__(".")
+
+class CantidadDeAparicionesDeHttp(CantidadDeAparicionesDePalabra):
+    def __init__(self):
+        super(CantidadDeAparicionesDeHttp, self).__init__("http")
+        
+class CantidadDeAparicionesDeBackSlash(CantidadDeAparicionesDePalabra):
+    def __init__(self):
+        super(CantidadDeAparicionesDeBackSlash, self).__init__("\\")
+    
+class CantidadDeAparicionesEspacio(CantidadDeAparicionesDePalabra):
+    def __init__(self):
+        super(CantidadDeAparicionesEspacio, self).__init__(" ")
