@@ -90,4 +90,4 @@ class AnalizadorDeMensajes(object):
         print '----------- Analizando atributos -----------'
 
     def _mensaje_de_progreso_para_atributo(self, nombre_de_atributo):
-        print ' - Analizando "%s"... ' % nombre_de_atributo
+        print ' - Analizando %s... ' % nombre_de_atributo
