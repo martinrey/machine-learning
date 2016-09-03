@@ -1,31 +1,36 @@
-import re
-
-
 class Atributo(object):
     def nombre(self):
         return self.__class__.__name__
 
-    def extraer_de(self, mensaje):
+    def extraer_de(self, datos_mensaje):
         raise NotImplementedError
 
 
-class CantidadDeAparicionesDeExpresion(Atributo):
-    def __init__(self, expresion):
-        super(CantidadDeAparicionesDeExpresion, self).__init__()
-        self._expresion = expresion
+class CantidadDeAparicionesDePalabra(Atributo):
+    def __init__(self, palabra):
+        super(CantidadDeAparicionesDePalabra, self).__init__()
+        self._palabra = palabra
 
     def nombre(self):
-        return '%s: "%s"' % (self.__class__.__name__, self._expresion)
+        return '%s: "%s"' % (self.__class__.__name__, self._palabra)
 
-    def _contar_expresion_de(self, texto):
-        if texto:
-            ocurrencias = re.findall(r"\b(%s)\b" % self._expresion, texto, flags=re.IGNORECASE)
-            return len(ocurrencias)
-        else:
-            return 0
+    def extraer_de(self, datos_mensaje):
+        return self._contar_palabras_de(datos_mensaje)
 
-    def extraer_de(self, mensaje):
-        cantidad_de_apariciones_de_expresion_en_el_cuerpo = self._contar_expresion_de(mensaje.cuerpo)
-        asunto = mensaje.metadata.get('subject', '')
-        cantidad_de_apariciones_de_expresion_en_el_asunto = self._contar_expresion_de(asunto)
-        return cantidad_de_apariciones_de_expresion_en_el_cuerpo + cantidad_de_apariciones_de_expresion_en_el_asunto
+    def _contar_palabras_de(self, datos_mensaje):
+        return datos_mensaje.contador_de_palabras()[self._palabra]
+
+
+class CantidadDeAparicionesDeCaracter(Atributo):
+    def __init__(self, caracter):
+        super(CantidadDeAparicionesDeCaracter, self).__init__()
+        self._caracter = caracter
+
+    def nombre(self):
+        return '%s: "%s"' % (self.__class__.__name__, self._caracter)
+
+    def _contar_caracteres_de(self, datos_mensaje):
+        return datos_mensaje.contador_de_caracteres()[self._caracter]
+
+    def extraer_de(self, datos_mensaje):
+        return self._contar_caracteres_de(datos_mensaje)

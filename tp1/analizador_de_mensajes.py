@@ -1,10 +1,11 @@
 # coding=utf-8
 import os
 
-import cPickle
+import pickle
 
+from builtins import map
 from atributo import Atributo
-from mensaje import Mensaje
+from datos_de_mensaje import DatosDeMensaje
 
 
 class ErrorDeAnalizadorDeMensaje(Exception):
@@ -44,7 +45,7 @@ class AnalizadorDeMensajes(object):
         self._mensaje_de_progreso_de_atributos()
         for atributo in self._lista_de_atributos_a_buscar:
             self._mensaje_de_progreso_para_atributo(atributo.nombre())
-            self._dataframe[atributo.nombre()] = map(atributo.extraer_de, lista_de_mensajes)
+            self._dataframe[atributo.nombre()] = list(map(atributo.extraer_de, lista_de_mensajes))
 
     def _cargar_mensajes(self):
         self._mensaje_de_progreso_de_listado_de_mensajes()
@@ -60,7 +61,7 @@ class AnalizadorDeMensajes(object):
         return lista_de_mensajes
 
     def _generar_lista_de_mensajes(self):
-        lista_de_mensajes = map(lambda texto: Mensaje(texto), self._dataframe.text)
+        lista_de_mensajes = list(map(lambda texto: DatosDeMensaje(texto), self._dataframe.text))
         return lista_de_mensajes
 
     def _existe_cache_de_mensajes(self):
@@ -68,26 +69,26 @@ class AnalizadorDeMensajes(object):
 
     def _cargar_lista_de_mensajes_desde_cache(self):
         file_de_cache = open(self.FILEPATH_DE_ARCHIVO_DE_CACHE, 'rb')
-        lista_de_mensajes = cPickle.load(file_de_cache)
+        lista_de_mensajes = pickle.load(file_de_cache)
         file_de_cache.close()
         return lista_de_mensajes
 
     def _escribir_lista_de_mensajes_en_cache(self, lista_de_mensajes):
         file_de_cache = open(self.FILEPATH_DE_ARCHIVO_DE_CACHE, 'wb+')
-        cPickle.dump(lista_de_mensajes, file_de_cache, -1)
+        pickle.dump(lista_de_mensajes, file_de_cache, -1)
         file_de_cache.close()
 
     def _mensaje_de_progreso_de_listado_de_mensajes(self):
-        print '----------- Procesando lista de mensajes (puede demorar unos minutos...) -----------'
+        print('----------- Procesando lista de mensajes (puede demorar unos minutos...) -----------')
 
     def _mensaje_de_progreso_para_cargar_lista_de_mensajes_desde_la_cache(self):
-        print ' - Cargando lista de mensajes desde la caché...'
+        print(' - Cargando lista de mensajes desde la caché...')
 
     def _mensaje_de_exito_de_carga_de_listado_de_mensajes_en_cache(self):
-        print ' - Lista de mensajes cargada desde la caché'
+        print(' - Lista de mensajes cargada desde la caché')
 
     def _mensaje_de_progreso_de_atributos(self):
-        print '----------- Analizando atributos -----------'
+        print('----------- Analizando atributos -----------')
 
     def _mensaje_de_progreso_para_atributo(self, nombre_de_atributo):
-        print ' - Analizando %s... ' % nombre_de_atributo
+        print(' - Analizando %s... ' % nombre_de_atributo)

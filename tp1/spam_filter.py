@@ -1,3 +1,4 @@
+from builtins import map
 from sklearn.cross_validation import cross_val_score
 
 from analizador_de_mensajes import AnalizadorDeMensajes
@@ -19,7 +20,8 @@ class SpamFilter(object):
                                                       self._utilizar_cache)
         analizador_de_mensajes.analizar_mensajes()
 
-        nombres_de_atributos_utilizados = map(lambda atributo: atributo.nombre(), self._lista_de_atributos_a_buscar)
+        nombres_de_atributos_utilizados = list(map(lambda atributo: atributo.nombre(),
+                                                   self._lista_de_atributos_a_buscar))
         valores = self._dataframe[nombres_de_atributos_utilizados].values
         clasificaciones = self._dataframe['class']
 

@@ -2,7 +2,7 @@
 import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 
-from atributo import CantidadDeAparicionesDeExpresion
+from atributo import CantidadDeAparicionesDePalabra, CantidadDeAparicionesDeCaracter
 from loader_de_mensajes_para_spam_filter import LoaderDeMensajesParaSpamFilter
 from spam_filter import SpamFilter
 
@@ -13,38 +13,39 @@ if __name__ == '__main__':
     clasificador = DecisionTreeClassifier()
 
     lista_de_atributos_a_buscar = [
-        CantidadDeAparicionesDeExpresion('Vicodin'), CantidadDeAparicionesDeExpresion('Viagra'),
-        CantidadDeAparicionesDeExpresion('html'), CantidadDeAparicionesDeExpresion('http'),
-        CantidadDeAparicionesDeExpresion('.'), CantidadDeAparicionesDeExpresion('\\'),
-        CantidadDeAparicionesDeExpresion(' '), CantidadDeAparicionesDeExpresion('make'),
-        CantidadDeAparicionesDeExpresion('address'), CantidadDeAparicionesDeExpresion('all'),
-        CantidadDeAparicionesDeExpresion('3d'), CantidadDeAparicionesDeExpresion('our'),
-        CantidadDeAparicionesDeExpresion('over'), CantidadDeAparicionesDeExpresion('remove'),
-        CantidadDeAparicionesDeExpresion('internet'), CantidadDeAparicionesDeExpresion('order'),
-        CantidadDeAparicionesDeExpresion('mail'), CantidadDeAparicionesDeExpresion('receive'),
-        CantidadDeAparicionesDeExpresion('will'), CantidadDeAparicionesDeExpresion('people'),
-        CantidadDeAparicionesDeExpresion('report'), CantidadDeAparicionesDeExpresion('addresses'),
-        CantidadDeAparicionesDeExpresion('free'), CantidadDeAparicionesDeExpresion('business'),
-        CantidadDeAparicionesDeExpresion('email'), CantidadDeAparicionesDeExpresion('you'),
-        CantidadDeAparicionesDeExpresion('credit'), CantidadDeAparicionesDeExpresion('your'),
-        CantidadDeAparicionesDeExpresion('font'), CantidadDeAparicionesDeExpresion('money'),
-        CantidadDeAparicionesDeExpresion('hp'), CantidadDeAparicionesDeExpresion('hpl'),
-        CantidadDeAparicionesDeExpresion('george'), CantidadDeAparicionesDeExpresion('lab'),
-        CantidadDeAparicionesDeExpresion('labs'), CantidadDeAparicionesDeExpresion('telnet'),
-        CantidadDeAparicionesDeExpresion('data'), CantidadDeAparicionesDeExpresion('technology'),
-        CantidadDeAparicionesDeExpresion('parts'), CantidadDeAparicionesDeExpresion('pm'),
-        CantidadDeAparicionesDeExpresion('direct'), CantidadDeAparicionesDeExpresion('cs'),
-        CantidadDeAparicionesDeExpresion('meeting'), CantidadDeAparicionesDeExpresion('original'),
-        CantidadDeAparicionesDeExpresion('project'), CantidadDeAparicionesDeExpresion('re'),
-        CantidadDeAparicionesDeExpresion('edu'), CantidadDeAparicionesDeExpresion('table'),
-        CantidadDeAparicionesDeExpresion('conference'), CantidadDeAparicionesDeExpresion(';'),
-        CantidadDeAparicionesDeExpresion('('), CantidadDeAparicionesDeExpresion('['),
-        CantidadDeAparicionesDeExpresion('!'), CantidadDeAparicionesDeExpresion('$'),
-        CantidadDeAparicionesDeExpresion('#'),
+        CantidadDeAparicionesDePalabra('vicodin'), CantidadDeAparicionesDePalabra('viagra'),
+        CantidadDeAparicionesDePalabra('html'), CantidadDeAparicionesDePalabra('http'),
+        CantidadDeAparicionesDePalabra('make'), CantidadDeAparicionesDePalabra('conference'),
+        CantidadDeAparicionesDePalabra('address'), CantidadDeAparicionesDePalabra('all'),
+        CantidadDeAparicionesDePalabra('3d'), CantidadDeAparicionesDePalabra('our'),
+        CantidadDeAparicionesDePalabra('over'), CantidadDeAparicionesDePalabra('remove'),
+        CantidadDeAparicionesDePalabra('internet'), CantidadDeAparicionesDePalabra('order'),
+        CantidadDeAparicionesDePalabra('mail'), CantidadDeAparicionesDePalabra('receive'),
+        CantidadDeAparicionesDePalabra('will'), CantidadDeAparicionesDePalabra('people'),
+        CantidadDeAparicionesDePalabra('report'), CantidadDeAparicionesDePalabra('addresses'),
+        CantidadDeAparicionesDePalabra('free'), CantidadDeAparicionesDePalabra('business'),
+        CantidadDeAparicionesDePalabra('email'), CantidadDeAparicionesDePalabra('you'),
+        CantidadDeAparicionesDePalabra('credit'), CantidadDeAparicionesDePalabra('your'),
+        CantidadDeAparicionesDePalabra('font'), CantidadDeAparicionesDePalabra('money'),
+        CantidadDeAparicionesDePalabra('hp'), CantidadDeAparicionesDePalabra('hpl'),
+        CantidadDeAparicionesDePalabra('george'), CantidadDeAparicionesDePalabra('lab'),
+        CantidadDeAparicionesDePalabra('labs'), CantidadDeAparicionesDePalabra('telnet'),
+        CantidadDeAparicionesDePalabra('data'), CantidadDeAparicionesDePalabra('technology'),
+        CantidadDeAparicionesDePalabra('parts'), CantidadDeAparicionesDePalabra('pm'),
+        CantidadDeAparicionesDePalabra('direct'), CantidadDeAparicionesDePalabra('cs'),
+        CantidadDeAparicionesDePalabra('meeting'), CantidadDeAparicionesDePalabra('original'),
+        CantidadDeAparicionesDePalabra('project'), CantidadDeAparicionesDePalabra('re'),
+        CantidadDeAparicionesDePalabra('edu'), CantidadDeAparicionesDePalabra('table'),
+        CantidadDeAparicionesDeCaracter('('), CantidadDeAparicionesDeCaracter('['),
+        CantidadDeAparicionesDeCaracter('!'), CantidadDeAparicionesDeCaracter('$'),
+        CantidadDeAparicionesDeCaracter('.'), CantidadDeAparicionesDeCaracter('\\'),
+        CantidadDeAparicionesDeCaracter('#'), CantidadDeAparicionesDeCaracter(' '),
+        CantidadDeAparicionesDeCaracter(';'),
     ]
 
     spam_filter = SpamFilter(dataframe, clasificador, lista_de_atributos_a_buscar, utilizar_cache=True)
     resultado = spam_filter.clasificar()
 
-    print 'Media: %s' % np.mean(resultado)
-    print 'Desvío standard: %s' % np.std(resultado)
+    print('Cantidad de atributos utilizados: %s' % len(lista_de_atributos_a_buscar))
+    print('Media: %s' % np.mean(resultado))
+    print('Desvío standard: %s' % np.std(resultado))
