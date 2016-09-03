@@ -10,7 +10,7 @@ if __name__ == '__main__':
     loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev.json', 'datos/spam_dev.json')
     dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
 
-    clasificador = DecisionTreeClassifier()
+    clasificador = DecisionTreeClassifier(max_depth=15, min_samples_split=10)
 
     lista_de_atributos_a_buscar = [
         CantidadDeAparicionesDePalabra('vicodin'), CantidadDeAparicionesDePalabra('viagra'),
@@ -36,6 +36,29 @@ if __name__ == '__main__':
         CantidadDeAparicionesDePalabra('meeting'), CantidadDeAparicionesDePalabra('original'),
         CantidadDeAparicionesDePalabra('project'), CantidadDeAparicionesDePalabra('re'),
         CantidadDeAparicionesDePalabra('edu'), CantidadDeAparicionesDePalabra('table'),
+        CantidadDeAparicionesDePalabra('nigeria'), CantidadDeAparicionesDePalabra('buy'),
+        CantidadDeAparicionesDePalabra('income'), CantidadDeAparicionesDePalabra('opportunity'),
+        CantidadDeAparicionesDePalabra('extra'), CantidadDeAparicionesDePalabra('cash'),
+        CantidadDeAparicionesDePalabra('free'), CantidadDeAparicionesDePalabra('insurance'),
+        CantidadDeAparicionesDePalabra('child'), CantidadDeAparicionesDePalabra('rate'),
+        CantidadDeAparicionesDePalabra('lifetime'), CantidadDeAparicionesDePalabra('sample'),
+        CantidadDeAparicionesDePalabra('satisfaction'), CantidadDeAparicionesDePalabra('wife'),
+        CantidadDeAparicionesDePalabra('dear'), CantidadDeAparicionesDePalabra('friend'),
+        CantidadDeAparicionesDePalabra('ad'), CantidadDeAparicionesDePalabra('click'),
+        CantidadDeAparicionesDePalabra('here'), CantidadDeAparicionesDePalabra('marketing'),
+        CantidadDeAparicionesDePalabra('notspam'), CantidadDeAparicionesDePalabra('subscribe'),
+        CantidadDeAparicionesDePalabra('junk'), CantidadDeAparicionesDePalabra('traffic'),
+        CantidadDeAparicionesDePalabra('spam'), CantidadDeAparicionesDePalabra('trial'),
+        CantidadDeAparicionesDePalabra('xanax'), CantidadDeAparicionesDePalabra('valium'),
+        CantidadDeAparicionesDePalabra('weight'), CantidadDeAparicionesDePalabra('hormone'),
+        CantidadDeAparicionesDePalabra('testosterone'), CantidadDeAparicionesDePalabra('growth'),
+        CantidadDeAparicionesDePalabra('inventory'), CantidadDeAparicionesDePalabra('disappointment'),
+        CantidadDeAparicionesDePalabra('guarantee'), CantidadDeAparicionesDePalabra('nigerian'),
+        CantidadDeAparicionesDePalabra('vacation'), CantidadDeAparicionesDePalabra('win'),
+        CantidadDeAparicionesDePalabra('selected'), CantidadDeAparicionesDePalabra('hosting'),
+        CantidadDeAparicionesDePalabra('membership'), CantidadDeAparicionesDePalabra('natural'),
+        CantidadDeAparicionesDePalabra('instant'), CantidadDeAparicionesDePalabra('bonus'),
+        CantidadDeAparicionesDePalabra('promise'),
         CantidadDeAparicionesDeCaracter('('), CantidadDeAparicionesDeCaracter('['),
         CantidadDeAparicionesDeCaracter('!'), CantidadDeAparicionesDeCaracter('$'),
         CantidadDeAparicionesDeCaracter('.'), CantidadDeAparicionesDeCaracter('\\'),
