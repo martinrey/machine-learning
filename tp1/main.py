@@ -1,6 +1,9 @@
 # coding=utf-8
-import numpy as np
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.svm import SVC
 
 from atributo import CantidadDeAparicionesDePalabra, CantidadDeAparicionesDeCaracter
 from loader_de_mensajes_para_spam_filter import LoaderDeMensajesParaSpamFilter
@@ -10,7 +13,15 @@ if __name__ == '__main__':
     loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev.json', 'datos/spam_dev.json')
     dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
 
-    clasificador = DecisionTreeClassifier(max_depth=15, min_samples_split=10)
+
+    # Naive Bayes, K vecinos más cercanos (KNN), support vector machines (SVM) y Random Forest.
+    clasificadores = [
+        DecisionTreeClassifier(max_depth=15, min_samples_split=10),
+        MultinomialNB(),
+        KNeighborsClassifier(),
+        # SVC(),
+        # RandomForestClassifier(),
+    ]
 
     lista_de_atributos_a_buscar = [
         CantidadDeAparicionesDePalabra('vicodin'), CantidadDeAparicionesDePalabra('viagra'),
@@ -58,7 +69,7 @@ if __name__ == '__main__':
         CantidadDeAparicionesDePalabra('selected'), CantidadDeAparicionesDePalabra('hosting'),
         CantidadDeAparicionesDePalabra('membership'), CantidadDeAparicionesDePalabra('natural'),
         CantidadDeAparicionesDePalabra('instant'), CantidadDeAparicionesDePalabra('bonus'),
-        CantidadDeAparicionesDePalabra('promise'),
+        CantidadDeAparicionesDePalabra('promise'), CantidadDeAparicionesDePalabra('prince'),
         CantidadDeAparicionesDeCaracter('('), CantidadDeAparicionesDeCaracter('['),
         CantidadDeAparicionesDeCaracter('!'), CantidadDeAparicionesDeCaracter('$'),
         CantidadDeAparicionesDeCaracter('.'), CantidadDeAparicionesDeCaracter('\\'),
@@ -66,9 +77,6 @@ if __name__ == '__main__':
         CantidadDeAparicionesDeCaracter(';'),
     ]
 
-    spam_filter = SpamFilter(dataframe, clasificador, lista_de_atributos_a_buscar, utilizar_cache=True)
-    resultado = spam_filter.clasificar()
-
+    spam_filter = SpamFilter(dataframe, clasificadores, lista_de_atributos_a_buscar, utilizar_cache=True)
     print('Cantidad de atributos utilizados: %s' % len(lista_de_atributos_a_buscar))
-    print('Media: %s' % np.mean(resultado))
-    print('Desvío standard: %s' % np.std(resultado))
+    spam_filter.clasificar(mostrar_resultados_intermedios=True)
