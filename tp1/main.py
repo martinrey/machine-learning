@@ -10,7 +10,7 @@ from loader_de_mensajes_para_spam_filter import LoaderDeMensajesParaSpamFilter
 from spam_filter import SpamFilter
 
 if __name__ == '__main__':
-    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev.json', 'datos/spam_dev.json')
+    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('/media/libre/ham_dev.json', '/media/libre/spam_dev.json')
     dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
 
 
@@ -77,6 +77,6 @@ if __name__ == '__main__':
         CantidadDeAparicionesDeCaracter(';'),
     ]
 
-    spam_filter = SpamFilter(dataframe, clasificadores, lista_de_atributos_a_buscar, utilizar_cache=True)
+    spam_filter = SpamFilter(dataframe, clasificadores, lista_de_atributos_a_buscar, utilizar_cache=False)
     print('Cantidad de atributos utilizados: %s' % len(lista_de_atributos_a_buscar))
     spam_filter.clasificar(mostrar_resultados_intermedios=True)
