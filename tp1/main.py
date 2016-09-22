@@ -4,20 +4,20 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import SVC
+from sklearn.grid_search import GridSearchCV
 
 from atributo import CantidadDeAparicionesDePalabra, CantidadDeAparicionesDeCaracter
 from loader_de_mensajes_para_spam_filter import LoaderDeMensajesParaSpamFilter
 from spam_filter import SpamFilter
 
-if __name__ == '__main__':
-    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('/media/libre/ham_dev.json', '/media/libre/spam_dev.json')
+def main():
+    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev.json', 'datos/spam_dev.json')
     dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
-
 
     clasificadores = [
         GridSearchCV(DecisionTreeClassifier(), param_grid=test_DecisionTreeClassifier()),
-        GridSearchCV(MultinomialNB(), param_grid=test_MultinomialNB()),
-        GridSearchCV(KNeighborsClassifier(), param_grid=test_KNeighborsClassifier()),
+        #GridSearchCV(MultinomialNB(), param_grid=test_MultinomialNB()),
+        #GridSearchCV(KNeighborsClassifier(), param_grid=test_KNeighborsClassifier()),
         #GridSearchCV(SVC(), param_grid=test_SVC()),
         #GridSearchCV(RandomForestClassifier(), param_grid=test_RandomForestClassifier()),
     ]
@@ -105,3 +105,6 @@ def test_SVC():
     clasificadores = []
     #cuando tengamos los mejores valores para DecisionTreeClassifier los usamos aca y variams la cantidad de arboles
     return clasificadores
+
+if __name__ == '__main__':
+    main()
