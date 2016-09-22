@@ -1,0 +1,20 @@
+Como ya adelantamos en la seccion anterior el objetivo de este tp será clasificar mails en spam y no spam, para ellos, comenzaremos el trabajo seleccionando atributos adecuados que concideramos dividen bien el problema.
+
+\subsection{Selección De atributos}
+
+Para la selección de atributos observamos parte del json entregado en busca de palabras claves que pudieran distinguir entre spam y no spam (desde ahora, ham).
+
+De este analisis se encontró que palabras tales como $viagra$ o $nigeria$ son muy frecuentes en los mensajes de spam, asi tambien aquellas que hagan referencia a negocios o a dinero, por lo que incluimos atributos que cuenten las veces que son mencionados estas palabras en el cuerpo y el encabezado del mensaje. Así tambien observamos que los mails de spam tienden a tener enlaces hacia sitios web o contenido html en el cuerpo del mensaje por lo que tambien contavilizamos la cantidad de ocurrencias de palabras tales como html o http y simbolos especiales como la barra invertida, o el hashtag.
+
+De esta menera reunimos al rededor de $100$ atributos que utilizaremos a continuación para la experimentación.
+
+\subsection{Experimentación}
+
+Los clasificadores que utilizaremos para experimentar en este trabajo serán: 
+\begin{itemize}
+\item	Arboles de Deciciones
+\item	Naive bayes Multinomial
+\item	Vecinos mas Cercanos
+\item	SVC
+\item	Random Forest
+\end{itemize}

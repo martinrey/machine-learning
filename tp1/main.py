@@ -14,13 +14,12 @@ if __name__ == '__main__':
     dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
 
 
-    # Naive Bayes, K vecinos más cercanos (KNN), support vector machines (SVM) y Random Forest.
     clasificadores = [
-        DecisionTreeClassifier(max_depth=15, min_samples_split=10),
-        MultinomialNB(),
-        KNeighborsClassifier(),
-        # SVC(),
-        # RandomForestClassifier(),
+        GridSearchCV(DecisionTreeClassifier(), param_grid=test_DecisionTreeClassifier()),
+        GridSearchCV(MultinomialNB(), param_grid=test_MultinomialNB()),
+        GridSearchCV(KNeighborsClassifier(), param_grid=test_KNeighborsClassifier()),
+        #GridSearchCV(SVC(), param_grid=test_SVC()),
+        #GridSearchCV(RandomForestClassifier(), param_grid=test_RandomForestClassifier()),
     ]
 
     lista_de_atributos_a_buscar = [
@@ -79,4 +78,30 @@ if __name__ == '__main__':
 
     spam_filter = SpamFilter(dataframe, clasificadores, lista_de_atributos_a_buscar, utilizar_cache=False)
     print('Cantidad de atributos utilizados: %s' % len(lista_de_atributos_a_buscar))
-    spam_filter.clasificar(mostrar_resultados_intermedios=True)
+    spam_filter.clasificar(mostrar_resultados_intermedios=False)
+
+    for grid in clasificadores:
+        print "Best Score: %s Best Params: %s" % (grid.best_score_ , grid.best_params_)
+
+def test_DecisionTreeClassifier():
+    grid_param = {"max_depth": [1,3,5,10,15], "min_samples_split": [1,3,5,10,15]}
+    return grid_param
+
+def test_MultinomialNB():
+    grid_param = {"alpha": [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.8,0.9,1]}
+    return grid_param
+
+def test_KNeighborsClassifier_uniform():
+    grid_param = {"n_neighbors": [1,3,5,7,10,15], "weights": ["uniform","distance"]}
+    return grid_param
+
+
+def test_SVC():
+    clasificadores = []
+    #que testear aca??
+    return clasificadores
+
+def test_SVC():
+    clasificadores = []
+    #cuando tengamos los mejores valores para DecisionTreeClassifier los usamos aca y variams la cantidad de arboles
+    return clasificadores

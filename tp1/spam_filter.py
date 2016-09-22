@@ -33,7 +33,7 @@ class SpamFilter(object):
 
     def _calcular_resultados_para_todos_los_clasificadores(self, clasificaciones, valores,
                                                            mostrar_resultados_intermedios=False):
-        self._mensaje_de_inicio_de_cross_validation_con_los_clasificadores()
+        #self._mensaje_de_inicio_de_cross_validation_con_los_clasificadores()
         resultados_por_clasificador = {}
         for clasificador in self._clasificadores:
             nombre_del_clasificador = clasificador.__class__.__name__
@@ -56,6 +56,5 @@ class SpamFilter(object):
             self._cantidad_de_folds_de_cross_validation, len(self._clasificadores)))
 
     def _mostrar_resultados_intermedios_para(self, nombre_del_clasificador, resultado_de_cross_validation):
-        print('-- Clasificador: %s --' % nombre_del_clasificador)
-        print('Media: %s' % np.mean(resultado_de_cross_validation))
-        print('Desvío standard: %s' % np.std(resultado_de_cross_validation))
+        print('%s , %s , %s' % (nombre_del_clasificador, np.mean(resultado_de_cross_validation), np.std(resultado_de_cross_validation)))
+
