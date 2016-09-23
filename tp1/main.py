@@ -11,16 +11,17 @@ from loader_de_mensajes_para_spam_filter import LoaderDeMensajesParaSpamFilter
 from spam_filter import SpamFilter
 
 def main():
-    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev.json', 'datos/spam_dev.json')
-    dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
 
     clasificadores = [
-        GridSearchCV(DecisionTreeClassifier(), param_grid=test_DecisionTreeClassifier()),
+        #GridSearchCV(DecisionTreeClassifier(), param_grid=test_DecisionTreeClassifier(),cv=10),
         #GridSearchCV(MultinomialNB(), param_grid=test_MultinomialNB()),
-        #GridSearchCV(KNeighborsClassifier(), param_grid=test_KNeighborsClassifier()),
+        GridSearchCV(KNeighborsClassifier(), param_grid=test_KNeighborsClassifier()),
         #GridSearchCV(SVC(), param_grid=test_SVC()),
         #GridSearchCV(RandomForestClassifier(), param_grid=test_RandomForestClassifier()),
     ]
+    print(clasificadores[0].get_params())
+    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev.json', 'datos/spam_dev.json')
+    dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
 
     lista_de_atributos_a_buscar = [
         CantidadDeAparicionesDePalabra('vicodin'), CantidadDeAparicionesDePalabra('viagra'),
@@ -78,10 +79,10 @@ def main():
 
     spam_filter = SpamFilter(dataframe, clasificadores, lista_de_atributos_a_buscar, utilizar_cache=False)
     print('Cantidad de atributos utilizados: %s' % len(lista_de_atributos_a_buscar))
-    spam_filter.clasificar(mostrar_resultados_intermedios=False)
+    spam_filter.clasificar(mostrar_resultados_intermedios=False, utilizo_grid_search=True)
 
     for grid in clasificadores:
-        print "Best Score: %s Best Params: %s" % (grid.best_score_ , grid.best_params_)
+        print("Best Score: %s Best Params: %s" % (grid.best_score_ , grid.best_params_))
 
 def test_DecisionTreeClassifier():
     grid_param = {"max_depth": [1,3,5,10,15], "min_samples_split": [1,3,5,10,15]}
@@ -91,7 +92,7 @@ def test_MultinomialNB():
     grid_param = {"alpha": [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.8,0.9,1]}
     return grid_param
 
-def test_KNeighborsClassifier_uniform():
+def test_KNeighborsClassifier():
     grid_param = {"n_neighbors": [1,3,5,7,10,15], "weights": ["uniform","distance"]}
     return grid_param
 

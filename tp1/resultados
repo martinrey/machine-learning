@@ -1,0 +1,4 @@
+MultinomialNB
+Best Score: 0.575811111111 Best Params: {'alpha': 0.1}
+KNeighborsClassifier
+Best Score: 0.905322222222 Best Params: {'n_neighbors': 3, 'weights': 'distance'}
