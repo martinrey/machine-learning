@@ -5,6 +5,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import SVC
 from sklearn.grid_search import GridSearchCV
+from sklearn.decomposition import PCA
+from sklearn.pipeline import Pipeline
 
 from atributo import CantidadDeAparicionesDePalabra, CantidadDeAparicionesDeCaracter
 from loader_de_mensajes_para_spam_filter import LoaderDeMensajesParaSpamFilter
@@ -12,16 +14,33 @@ from spam_filter import SpamFilter
 
 def main():
 
+    # clasificadores = [
+    #     GridSearchCV(DecisionTreeClassifier(), param_grid=test_DecisionTreeClassifier(),cv=10),
+    #     GridSearchCV(MultinomialNB(), param_grid=test_MultinomialNB()),
+    #     GridSearchCV(KNeighborsClassifier(), param_grid=test_KNeighborsClassifier()),
+    #     GridSearchCV(SVC(), param_grid=test_SVC()),
+    #     GridSearchCV(RandomForestClassifier(), param_grid=test_RandomForestClassifier()),
+    # ]
+    #uso de pca para reducir dimencionalidad y mejorar resultados
+
     clasificadores = [
-        GridSearchCV(DecisionTreeClassifier(), param_grid=test_DecisionTreeClassifier(),cv=10),
-        GridSearchCV(MultinomialNB(), param_grid=test_MultinomialNB()),
-        GridSearchCV(KNeighborsClassifier(), param_grid=test_KNeighborsClassifier()),
-        GridSearchCV(SVC(), param_grid=test_SVC()),
-        GridSearchCV(RandomForestClassifier(), param_grid=test_RandomForestClassifier()),
+        DecisionTreeClassifier(),
+        MultinomialNB(),
+        KNeighborsClassifier(),
+        SVC(),
+        RandomForestClassifier(),
     ]
+    pipelined_class = []
+    pca = PCA(n_components=2)
+    for clasificador in clasificadores:
+        pipe = [('pca',pca),('clasificador',clasificador)]
+        pipelined_class.append(GridSearchCV(Pipeline(pipe),{'pca__n_components':[2,5,10,40,70]}))
+
+    clasificadores = pipelined_class
+
     loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev_entrenamiento.json', 'datos/spam_dev_entrenamiento.json')
     dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
-
+    #para buscar mejores parametros de clasificadores
     lista_de_atributos_a_buscar = [
         CantidadDeAparicionesDePalabra('vicodin'), CantidadDeAparicionesDePalabra('viagra'),
         CantidadDeAparicionesDePalabra('html'), CantidadDeAparicionesDePalabra('http'),

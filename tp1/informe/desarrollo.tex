@@ -11,6 +11,7 @@ De esta menera reunimos al rededor de $100$ atributos que utilizaremos a continu
 \subsection{Experimentación}
 
 Los clasificadores que utilizaremos para experimentar en este trabajo serán: 
+
 \begin{itemize}
 \item	Arboles de Deciciones
 \item	Naive bayes Multinomial
@@ -18,3 +19,39 @@ Los clasificadores que utilizaremos para experimentar en este trabajo serán:
 \item	SVC
 \item	Random Forest
 \end{itemize}
+
+Para cada uno de ellos utilizaremos grid search para intentar encontrar los hiperparametros que logren la mejor clasificación.
+
+En cada una de las experimentaciónes utilizamos grid search de sklearn con $10$ kfolds.
+
+\subsubsection{Arboles de Deciciones}
+
+Como vimos en clase, este clasificador intentará aplicar una serie de reglas sucesivas para determinar la clasificación. Por ejemplo, un posible arbol de decición para clasificar spam podría ser, si el mensaje contiene la palabra $nigeria$ mas de $4$ veces, es spam, si no ver cuantas veces se menciona $html$ en el mensaje, si el resultado esta entre $4$ y $7$ es spam, si no no... y así sucecivamente.
+
+En particular, los hiperparametros que querremos encontrar para este algoritmo en particular son: la maxima profunididad del arbol, y la cantidad minima de muestras necesarias para dividir un nodo.
+
+Experimentamos variando los hiperparametros entre los siguientes valores:
+
+\begin{itemize}
+\item $max_depth: 1,3,5,10,15,50,100$ 
+\item $min_samples_split: 1,3,5,10,15$
+\end{itemize}
+
+Y el resultado obtenido fue:
+
+\terminar
+% concluciones
+
+\subsubsection{Naive bayes Multinomial}
+
+El objetivo del Naive bayes será encontrar la clase mas probable de cada instancia en base al calculo de la probabilidad bayesiana. 
+
+Para este clasificador querremos encontrar el mejor suabizado laplaciano ($alfa$), para ello experimentamos con los siguientes valores:
+\begin{itemize}
+\item $alpha": 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.8,0.9,1$
+\end{itemize}
+
+
+\subsection{PCA}
+
+Para intentar mejorar la precición de los resultados utilizamos PCA para obtener las componentes principales de nuestro set de atrubutos.
