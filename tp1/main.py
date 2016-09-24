@@ -13,14 +13,13 @@ from spam_filter import SpamFilter
 def main():
 
     clasificadores = [
-        #GridSearchCV(DecisionTreeClassifier(), param_grid=test_DecisionTreeClassifier(),cv=10),
-        #GridSearchCV(MultinomialNB(), param_grid=test_MultinomialNB()),
+        GridSearchCV(DecisionTreeClassifier(), param_grid=test_DecisionTreeClassifier(),cv=10),
+        GridSearchCV(MultinomialNB(), param_grid=test_MultinomialNB()),
         GridSearchCV(KNeighborsClassifier(), param_grid=test_KNeighborsClassifier()),
-        #GridSearchCV(SVC(), param_grid=test_SVC()),
-        #GridSearchCV(RandomForestClassifier(), param_grid=test_RandomForestClassifier()),
+        GridSearchCV(SVC(), param_grid=test_SVC()),
+        GridSearchCV(RandomForestClassifier(), param_grid=test_RandomForestClassifier()),
     ]
-    print(clasificadores[0].get_params())
-    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev.json', 'datos/spam_dev.json')
+    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev_entrenamiento.json', 'datos/spam_dev_entrenamiento.json')
     dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
 
     lista_de_atributos_a_buscar = [
@@ -85,7 +84,7 @@ def main():
         print("Best Score: %s Best Params: %s" % (grid.best_score_ , grid.best_params_))
 
 def test_DecisionTreeClassifier():
-    grid_param = {"max_depth": [1,3,5,10,15], "min_samples_split": [1,3,5,10,15]}
+    grid_param = {"max_depth": [1,3,5,10,15,50,100], "min_samples_split": [1,3,5,10,15], }
     return grid_param
 
 def test_MultinomialNB():
@@ -98,14 +97,12 @@ def test_KNeighborsClassifier():
 
 
 def test_SVC():
-    clasificadores = []
-    #que testear aca??
-    return clasificadores
+    grid_param = {"kernel":['linear', 'poly', 'rbf', 'sigmoid'], "degree":[2,3,4], "probability": [True, False]}
+    return grid_param
 
-def test_SVC():
-    clasificadores = []
-    #cuando tengamos los mejores valores para DecisionTreeClassifier los usamos aca y variams la cantidad de arboles
-    return clasificadores
+def test_RandomForestClassifier():
+    grid_param = {"n_estimators":[2,5,10,15,40,100],"max_features":[2,5,10,20], "max_depth":[3,5,20,None]}
+    return grid_param
 
 if __name__ == '__main__':
     main()

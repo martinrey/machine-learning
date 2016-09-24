@@ -10,7 +10,8 @@ def crear_archivos_de_entrenamiento_y_test_desde(nombre_archivo):
     archivo.close()
 
     mensajes_totales = len(datos_txt)
-    indice_de_corte = math.floor(mensajes_totales * (1 - PORCENTAJE_DE_TEST))
+    indice_de_corte = int(math.floor(mensajes_totales * (1.0 - PORCENTAJE_DE_TEST)))
+    indice_de_corte
     parte_de_entrenamiento = datos_txt[:indice_de_corte]
     parte_de_test = datos_txt[indice_de_corte:]
 
@@ -22,6 +23,6 @@ def crear_archivos_de_entrenamiento_y_test_desde(nombre_archivo):
     json.dump(parte_de_test, file_test)
     file_test.close()
 
-
-crear_archivos_de_entrenamiento_y_test_desde('ham_dev')
-crear_archivos_de_entrenamiento_y_test_desde('spam_dev')
+if __name__ == "__main__":
+    crear_archivos_de_entrenamiento_y_test_desde('ham_dev')
+    crear_archivos_de_entrenamiento_y_test_desde('spam_dev')
