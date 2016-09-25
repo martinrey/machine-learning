@@ -37,10 +37,12 @@ Experimentamos variando los hiperparametros entre los siguientes valores:
 \item $min_samples_split: 1,3,5,10,15$
 \end{itemize}
 
-Y el resultado obtenido fue:
+El mejor resultado obtenido fue de $0.965975308642$ con un max_depth de $50$ y un min sammple split de $1$.
 
 \terminar
 % concluciones
+%Best Score: 0.965975308642 Best Params: {'max_depth': 50, 'min_samples_split': 1}
+
 
 \subsubsection{Naive bayes Multinomial}
 
@@ -51,6 +53,27 @@ Para este clasificador querremos encontrar el mejor suabizado laplaciano ($alfa$
 \item $alpha": 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.8,0.9,1$
 \end{itemize}
 
+El resultado del grid search arroja que el mejor score resulto ser de $0.587740740741$ con un alpha de $0.1$
+
+%Best Score: 0.587740740741 Best Params: {'alpha': 0.1}
+
+\subsubsection{Vecinos mas Cercanos}
+
+
+En este caso el mejor resultado obtenido fue de $0.908358024691$ con una cantidad de vecinos igual a 1 y pesos uniformes.
+
+%Best Score: 0.908358024691 Best Params: {'n_neighbors': 1, 'weights': 'uniform'}
+
+\subsubsection{SVC}
+
+%Sin resultados yet
+
+\subsubsection{Random Forest}
+
+
+Para este estimador el mejor resultado fue de $0.979098765432$ con una cantidad de arboles igual a $100$, un max_depth variable y una cantidad de features a examinar igual a $10$.
+
+%Best Score: 0.979098765432 Best Params: {'n_estimators': 100, 'max_depth': None, 'max_features': 10}
 
 \subsection{PCA}
 

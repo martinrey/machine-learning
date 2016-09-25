@@ -24,11 +24,11 @@ def main():
     #uso de pca para reducir dimencionalidad y mejorar resultados
 
     clasificadores = [
-        DecisionTreeClassifier(),
-        MultinomialNB(),
-        KNeighborsClassifier(),
-        SVC(),
-        RandomForestClassifier(),
+        DecisionTreeClassifier(max_depth=50, min_samples_split=1),
+        MultinomialNB(alpha=0.1),
+        KNeighborsClassifier(n_neighbors=1,weights='uniform'),
+        #SVC(),
+        RandomForestClassifier(n_estimators=100,max_depth=None, max_features=10),
     ]
     pipelined_class = []
     pca = PCA(n_components=2)
