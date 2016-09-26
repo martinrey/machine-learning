@@ -33,13 +33,12 @@ En particular, los hiperparametros que querremos encontrar para este algoritmo e
 Experimentamos variando los hiperparametros entre los siguientes valores:
 
 \begin{itemize}
-\item $max_depth: 1,3,5,10,15,50,100$ 
-\item $min_samples_split: 1,3,5,10,15$
+\item $max\_depth: 1,3,5,10,15,50,100$ 
+\item $min\_samples\_split: 1,3,5,10,15$
 \end{itemize}
 
-El mejor resultado obtenido fue de $0.965975308642$ con un max_depth de $50$ y un min sammple split de $1$.
+El mejor resultado obtenido fue de $0.965975308642$ con un $max\_depth$ de $50$ y un min sammple split de $1$.
 
-\terminar
 % concluciones
 %Best Score: 0.965975308642 Best Params: {'max_depth': 50, 'min_samples_split': 1}
 
@@ -50,7 +49,7 @@ El objetivo del Naive bayes será encontrar la clase mas probable de cada instan
 
 Para este clasificador querremos encontrar el mejor suabizado laplaciano ($alfa$), para ello experimentamos con los siguientes valores:
 \begin{itemize}
-\item $alpha": 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.8,0.9,1$
+\item $alfa: 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.8,0.9,1$
 \end{itemize}
 
 El resultado del grid search arroja que el mejor score resulto ser de $0.587740740741$ con un alpha de $0.1$
@@ -59,8 +58,9 @@ El resultado del grid search arroja que el mejor score resulto ser de $0.5877407
 
 \subsubsection{Vecinos mas Cercanos}
 
+La idea tras este clasificador es dada una nueva instancia a clasificar, comparar sus atributos contra todos los de la base de entrenamiento y quedarnos con k vacinos mas $cercanos$. La $cercania$ de una instancia con otra puede calcularse como la norma dos de los atributos al cuadrado o alguna otra función que nos permita definir una distancia relativa entre dos hiperplanos. Para este clasificador querremos determinar la cantidad de vecinos optimo y la función de peso a utilizar en la predicción. Para esto ultimo tendremos dos posivilidades, con pesos uniformes o por distancia. Para poner un ejemplo sobre cual es la diferencia, supongo que seteo como hiperparametro que la cantidad de vecinos es igual a $3$ y para un mensaje dado obtengo que el primer vecino es spam y los otros dos son ham. Con una función uniforme, se determinará que el mail es ham, ya que ham es mayoría. Pero podría darse el caso en que el primer vecino se encuentre a una distancia infima del mail a clasificar y que los otros dos se encuentren a una distancia extremadamente grande. En ese caso sería mas razonable asignarle mas peso al primer vecino de manera tal que el mail sea clasificado como spam. Esta segunda solución será la de utlizar pesos variables que dependan de la distancia.
 
-En este caso el mejor resultado obtenido fue de $0.908358024691$ con una cantidad de vecinos igual a 1 y pesos uniformes.
+Para este clasificador provamos con $1,3,5,7,10$ y $15$ vecinos y el mejor resultado obtenido fue de $0.908358024691$ con una cantidad de vecinos igual a $1$ y pesos uniformes.
 
 %Best Score: 0.908358024691 Best Params: {'n_neighbors': 1, 'weights': 'uniform'}
 
@@ -70,23 +70,39 @@ En este caso el mejor resultado obtenido fue de $0.908358024691$ con una cantida
 
 \subsubsection{Random Forest}
 
+Este clasificador consiste en crear una gran cantidad de arboles de decición, y al momento de clasificar elegir el resultado que sea la moda de las clasificaciones determinadas por los arboles individuales.
 
-Para este estimador el mejor resultado fue de $0.979098765432$ con una cantidad de arboles igual a $100$, un max_depth variable y una cantidad de features a examinar igual a $10$.
+Para este estimador querremos definir la cantidad de arboles de decición a utilizar, la profundidad maxima que se le permitirá tener a cada arbol, y maxima cantidad de atributos a conciderar cuando se este realizando la divición de un nodo.
+
+Experimentamos con $2,5,10,15,40,100$ arboles, $2,5,10,20$ atributos a considerar al momento de la divición de un nodo y una profundidad maxima de $3,5,20$ y sin restricciones
+
+%grid_param = {"n_estimators":[2,5,10,15,40,100],"max_features":[2,5,10,20], "max_depth":[3,5,20,None]}
+
+Para este estimador el mejor resultado fue de $0.979098765432$ con una cantidad de arboles igual a $100$, una profundidad irrestricta y una cantidad de features a examinar igual a $10$.
 
 %Best Score: 0.979098765432 Best Params: {'n_estimators': 100, 'max_depth': None, 'max_features': 10}
 
 \subsection{PCA}
 
-Para intentar mejorar la precición de los resultados utilizamos PCA para obtener las componentes principales de nuestro set de atrubutos.
+Para intentar mejorar la precición de los resultados utilizamos PCA para obtener las componentes principales de nuestro set de atrubutos. 
 
+Ademas utlizamos grid search para obtener cual era la cantidad optima de componentes principales para cada uno de los algoritmos. Utilizamos $2,5,10,40,70$ componentes para la experimentación.
 
-Arboles de Deciciones
-Best Score: 0.931592592593 Best Params: {'pca__n_components': 30}
-Naive bayes Multinomial
-Best Score: 0.596308641975 Best Params: {'pca__n_components': 30}
-Vecinos mas Cercanos
-Best Score: 0.908 Best Params: {'pca__n_components': 70}
-SVC
-?
-Random Forest
-Best Score: 0.967962962963 Best Params: {'pca__n_components': 40}
+Lo que observamos fue que tanto en arboles de decición como en random forests las respuestas resultaron ser levemente peores, pasando de un mejor resultado de $0.965975308642$ a $0.931592592593$ y de $0.967962962963$ a $0.979098765432$, respectivamente.
+
+Para el algoritmo de naive vayes esta vez utilizamos un modelo gaussiano, pero los resultados siguieron sin ser muy buenos, obteniendo un score del $0.596308641975$
+
+Para vecinos mas cercanos el cambio de performance no fue notable, obteniendo una respuesta de 0.908.
+
+Si bien entendemos que los resultados del grid search podrian haber sido mejores variando nuevamente los parametros del apartado anterior junto con la cantidad de componentes (sobretodo en el caso de vecinos mas cercanos), esto también resultaba muy caro computacionalmente y por cuestiones de tiempo no lo incluimos en el trabajo.
+
+%Arboles de Deciciones
+%Best Score: 0.931592592593 Best Params: {'pca__n_components': 30}
+%En este usamos Naive bayes gaussiano porque el multinomial 
+%Best Score: 0.596308641975 Best Params: {'pca__n_components': 30}
+%Vecinos mas Cercanos
+%Best Score: 0.908 Best Params: {'pca__n_components': 70}
+%SVC
+%?
+%Random Forest
+%Best Score: 0.967962962963 Best Params: {'pca__n_components': 40}
