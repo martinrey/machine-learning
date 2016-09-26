@@ -96,18 +96,24 @@ def final_build():
     dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
     spam_filter = SpamFilter(dataframe, clasificadores, lista_de_atributos_a_buscar, utilizar_cache=False)
     spam_filter.entrenar()
-    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev_test.json', 'datos/spam_dev_test.json', verbose=0)
-    dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
-    nombres_de_atributos_utilizados = list(map(lambda atributo: atributo.nombre(),lista_de_atributos_a_buscar))
-    lista_mensajes = dataframe[nombres_de_atributos_utilizados].values
+
+
+    loader_de_mensajes_para_testing = LoaderDeMensajesParaSpamFilter('datos/ham_dev_test.json', 'datos/spam_dev_test.json', verbose=0)
+    dataframe = loader_de_mensajes_para_testing.crear_dataframe()
+    lista_mensajes = spam_filter.conseguir_valores(dataframe)
     modo_prediccion = False
     if(modo_prediccion):
         spam_filter.predecir(lista_mensajes)
     else:
         #modo testeo
         clasificaciones = dataframe['class']
-        spam_filter.dar_score(lista_mensajes,clasificaciones)
+        print "Score:"
+        print spam_filter.dar_score(lista_mensajes,clasificaciones)
 
+def cargar_datos_de_prueba():
+    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev_test.json', 'datos/spam_dev_test.json', verbose=0)
+    dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
+    nombres_de_atributos_utilizados = list(map(lambda atributo: atributo.nombre(),lista_de_atributos_a_buscar))
 
 
 def cargar_atributos():

@@ -18,23 +18,38 @@ class SpamFilter(object):
         self._cantidad_de_folds_de_cross_validation = cantidad_de_folds_de_cross_validation
         self._utilizar_cache = utilizar_cache
 
-    def clasificar(self, mostrar_resultados_intermedios=False, utilizo_grid_search = False):
-        analizador_de_mensajes = AnalizadorDeMensajes(self._lista_de_atributos_a_buscar, self._dataframe,
-                                                      self._utilizar_cache)
-        analizador_de_mensajes.analizar_mensajes()
-
-        nombres_de_atributos_utilizados = list(map(lambda atributo: atributo.nombre(),
-                                                   self._lista_de_atributos_a_buscar))
-        valores = self._dataframe[nombres_de_atributos_utilizados].values
+    def hacer_cross_validation(self, mostrar_resultados_intermedios=False, utilizo_grid_search = False):
+        
+        valores = self.conseguir_valores(self._dataframe)
         clasificaciones = self._dataframe['class']
-
         if utilizo_grid_search:
              return self._calcular_resultados_para_todos_los_clasificadores_con_grid_search(clasificaciones, valores,
                                                                             mostrar_resultados_intermedios)
         else:
             return self._calcular_resultados_para_todos_los_clasificadores(clasificaciones, valores,
                                                                             mostrar_resultados_intermedios)
+    def entrenar(self):
+        valores = self.conseguir_valores(self._dataframe)
+        clasificaciones = self._dataframe['class']
+        for clasificador in self._clasificadores:
+            clasificador.fit(X=valores,y=clasificaciones)
 
+    def conseguir_valores(self,dataframe):
+        analizador_de_mensajes = AnalizadorDeMensajes(self._lista_de_atributos_a_buscar, dataframe,
+                                                      self._utilizar_cache,verbose=False)
+        analizador_de_mensajes.analizar_mensajes()
+
+        nombres_de_atributos_utilizados = list(map(lambda atributo: atributo.nombre(),
+                                                   self._lista_de_atributos_a_buscar))
+        valores = self._dataframe[nombres_de_atributos_utilizados].values
+        return valores
+
+    def predecir(self,lista_mensajes,numero_de_clasificador=0):
+        for mensaje in lista_mensajes:
+            print self._clasificadores[numero_de_clasificador].predict(X=mensaje)
+
+    def dar_score(self,lista_mensajes,clasificaciones,numero_de_clasificador=0):
+        return self._clasificadores[numero_de_clasificador].score(X=lista_mensajes,y=clasificaciones)
 
     def _calcular_resultados_para_todos_los_clasificadores(self, clasificaciones, valores,
                                                            mostrar_resultados_intermedios=False):
@@ -69,6 +84,8 @@ class SpamFilter(object):
 
             resultados_por_clasificador[nombre_del_clasificador] = resultado_de_cross_validation
         return resultados_por_clasificador
+
+
 
 
     def _mensaje_de_progreso_de_cross_validation_para_el_clasificador(self, nombre_del_clasificador):
