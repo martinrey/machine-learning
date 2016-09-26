@@ -14,6 +14,37 @@ from spam_filter import SpamFilter
 
 def main():
 
+    testing = False
+    if(testing):
+        development_testing()
+    else:
+        final_build()
+
+
+
+
+def test_DecisionTreeClassifier():
+    grid_param = {"max_depth": [1,3,5,10,15,50,100], "min_samples_split": [1,3,5,10,15], }
+    return grid_param
+
+def test_MultinomialNB():
+    grid_param = {"alpha": [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.8,0.9,1]}
+    return grid_param
+
+def test_KNeighborsClassifier():
+    grid_param = {"n_neighbors": [1,3,5,7,10,15], "weights": ["uniform","distance"]}
+    return grid_param
+
+
+def test_SVC():
+    grid_param = {"kernel":['linear'], "degree":[2,3,4], "probability": [True, False]}
+    return grid_param
+
+def test_RandomForestClassifier():
+    grid_param = {"n_estimators":[2,5,10,15,40,100],"max_features":[2,5,10,20], "max_depth":[3,5,20,None]}
+    return grid_param
+
+def development_testing():
     # clasificadores = [
     #     GridSearchCV(DecisionTreeClassifier(), param_grid=test_DecisionTreeClassifier(),cv=10),
     #     GridSearchCV(MultinomialNB(), param_grid=test_MultinomialNB()),
@@ -41,6 +72,45 @@ def main():
     loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev_entrenamiento.json', 'datos/spam_dev_entrenamiento.json')
     dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
     #para buscar mejores parametros de clasificadores
+    
+    lista_de_atributos_a_buscar = cargar_atributos()
+
+
+    spam_filter = SpamFilter(dataframe, clasificadores, lista_de_atributos_a_buscar, utilizar_cache=False)
+    print('Cantidad de atributos utilizados: %s' % len(lista_de_atributos_a_buscar))
+    spam_filter.hacer_cross_validation(mostrar_resultados_intermedios=False, utilizo_grid_search=True)
+
+    for grid in clasificadores:
+        print("Best Score: %s Best Params: %s" % (grid.best_score_ , grid.best_params_))
+
+def final_build():
+    clasificadores = [
+        DecisionTreeClassifier(max_depth=50, min_samples_split=1),
+        MultinomialNB(alpha=0.1),
+        Pipeline([('pca',PCA(n_components=2)),('clasificador',KNeighborsClassifier(n_neighbors=1,weights='uniform'))]),
+        SVC(),
+        RandomForestClassifier(n_estimators=100,max_depth=None, max_features=10),
+    ]
+    lista_de_atributos_a_buscar = cargar_atributos()
+    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev_test.json', 'datos/spam_dev_test.json', verbose=0)
+    dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
+    spam_filter = SpamFilter(dataframe, clasificadores, lista_de_atributos_a_buscar, utilizar_cache=False)
+    spam_filter.entrenar()
+    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev_test.json', 'datos/spam_dev_test.json', verbose=0)
+    dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
+    nombres_de_atributos_utilizados = list(map(lambda atributo: atributo.nombre(),lista_de_atributos_a_buscar))
+    lista_mensajes = dataframe[nombres_de_atributos_utilizados].values
+    modo_prediccion = False
+    if(modo_prediccion):
+        spam_filter.predecir(lista_mensajes)
+    else:
+        #modo testeo
+        clasificaciones = dataframe['class']
+        spam_filter.dar_score(lista_mensajes,clasificaciones)
+
+
+
+def cargar_atributos():
     lista_de_atributos_a_buscar = [
         CantidadDeAparicionesDePalabra('vicodin'), CantidadDeAparicionesDePalabra('viagra'),
         CantidadDeAparicionesDePalabra('html'), CantidadDeAparicionesDePalabra('http'),
@@ -94,34 +164,7 @@ def main():
         CantidadDeAparicionesDeCaracter('#'), CantidadDeAparicionesDeCaracter(' '),
         CantidadDeAparicionesDeCaracter(';'),
     ]
-
-    spam_filter = SpamFilter(dataframe, clasificadores, lista_de_atributos_a_buscar, utilizar_cache=False)
-    print('Cantidad de atributos utilizados: %s' % len(lista_de_atributos_a_buscar))
-    spam_filter.clasificar(mostrar_resultados_intermedios=False, utilizo_grid_search=True)
-
-    for grid in clasificadores:
-        print("Best Score: %s Best Params: %s" % (grid.best_score_ , grid.best_params_))
-
-def test_DecisionTreeClassifier():
-    grid_param = {"max_depth": [1,3,5,10,15,50,100], "min_samples_split": [1,3,5,10,15], }
-    return grid_param
-
-def test_MultinomialNB():
-    grid_param = {"alpha": [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.8,0.9,1]}
-    return grid_param
-
-def test_KNeighborsClassifier():
-    grid_param = {"n_neighbors": [1,3,5,7,10,15], "weights": ["uniform","distance"]}
-    return grid_param
-
-
-def test_SVC():
-    grid_param = {"kernel":['linear', 'poly', 'rbf', 'sigmoid'], "degree":[2,3,4], "probability": [True, False]}
-    return grid_param
-
-def test_RandomForestClassifier():
-    grid_param = {"n_estimators":[2,5,10,15,40,100],"max_features":[2,5,10,20], "max_depth":[3,5,20,None]}
-    return grid_param
+    return lista_de_atributos_a_buscar
 
 if __name__ == '__main__':
     main()
