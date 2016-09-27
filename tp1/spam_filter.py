@@ -1,5 +1,7 @@
 import os
 from builtins import map
+
+import errno
 from sklearn.cross_validation import cross_val_score
 import numpy as np
 import pickle
@@ -59,6 +61,13 @@ class SpamFilter(object):
 
     def guardar_modelo(self, output_folder, indice_de_clasificador=0, numero_de_clasificador=0):
         nombre_clasificador = NOMBRES_DE_CLASIFICADORES_POR_NUMERO[numero_de_clasificador]
+        if not os.path.exists(os.path.dirname(output_folder)):
+            try:
+                os.makedirs(os.path.dirname(output_folder))
+            except OSError as exc:  # Guard against race condition
+                if exc.errno != errno.EEXIST:
+                    raise
+
         with open(os.path.join(output_folder, '%s.pickle' % nombre_clasificador), 'wb+') as output_file:
             pickle.dump(self._clasificadores[indice_de_clasificador], output_file)
 
