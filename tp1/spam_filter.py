@@ -1,6 +1,7 @@
 from builtins import map
 from sklearn.cross_validation import cross_val_score
 import numpy as np
+import pickle
 
 from analizador_de_mensajes import AnalizadorDeMensajes
 
@@ -45,8 +46,7 @@ class SpamFilter(object):
         return valores
 
     def predecir(self,lista_mensajes,numero_de_clasificador=0):
-        for mensaje in lista_mensajes:
-            print self._clasificadores[numero_de_clasificador].predict(X=mensaje)
+        print self._clasificadores[numero_de_clasificador].predict(X=lista_mensajes)
 
     def dar_score(self,lista_mensajes,clasificaciones,numero_de_clasificador=0):
         return self._clasificadores[numero_de_clasificador].score(X=lista_mensajes,y=clasificaciones)
@@ -68,6 +68,13 @@ class SpamFilter(object):
             resultados_por_clasificador[nombre_del_clasificador] = resultado_de_cross_validation
         return resultados_por_clasificador
 
+    def guardar_modelo(self,output_file,numero_de_clasificador):
+        fout = open(output_file,'w')
+        pickle.dump(self._clasificadores[numero_de_clasificador],fout)
+        fout.close()
+    
+    def cargar_modelo(self,input_file,numero_de_clasificador):
+        self._clasificadores[numero_de_clasificador] = pickle.load( open(input_file))
 
     def _calcular_resultados_para_todos_los_clasificadores_con_grid_search(self, clasificaciones, valores,
                                                            mostrar_resultados_intermedios=False):

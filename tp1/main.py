@@ -11,16 +11,69 @@ from sklearn.pipeline import Pipeline
 from atributo import CantidadDeAparicionesDePalabra, CantidadDeAparicionesDeCaracter
 from loader_de_mensajes_para_spam_filter import LoaderDeMensajesParaSpamFilter
 from spam_filter import SpamFilter
+import sys, getopt
 
 def main():
+    uso_input = False
+    guardar_red = False
+    cargar_red = False
+    testear_resultados = False
+    inputfile = 'datos/'
+    outputfile = 'trained/'
+    testing = 'datos/'
+    testing_mode = False
+    option = int(sys.argv[1])
+    modelo_a_utlizar = None
 
-    testing = False
-    if(testing):
+    if(len(sys.argv) <= 1):
+        print_options()
+        sys.exit()
+    argv = sys.argv[2:]
+
+    try:
+        opts, args = getopt.getopt(argv,"hi:o:n:t:s:",["ifile=","ofile="])
+    except getopt.GetoptError:
+        print_options()
+        sys.exit()
+    for opt, arg in opts:
+        if opt == '-h':
+            print_options()
+            sys.exit()
+        elif opt in ("-i", "--inputfile"):
+            uso_input = True
+            inputfile = arg
+        elif opt in ("-o", "--outputfile"):
+            guardar_red = True
+            outputfile = arg
+        elif opt in ("-n", "--net"):
+            cargar_red = True
+            modelo_a_utlizar = arg
+        elif opt in ("-t", "--testing"):
+            testear_resultados = True
+            testing = arg
+        elif opt in ("-s", "--s"):
+            testing_mode = True
+    testing_build = False
+    if(testing_build):
         development_testing()
     else:
-        final_build()
+        final_build(option,inputfile,outputfile,modelo_a_utlizar,testing,testing_mode)
 
 
+def print_options():
+    print 'main.py numero_clasificador'
+    print "0. DecisionTreeClassifier"
+    print "1. MultinomialNB"
+    print "2. KNeighborsClassifier"
+    print "3. SVC"
+    print "4. RandomForestClassifier"
+    print "Flags:"
+    print "-i <inputfile> \t\t archivo de entrenamiento"
+    print "-o <outputfile> \t Archivo donde guardar modelo"
+    print "-n <net> \t\t Modelo a utilizar"
+    print "-t <testing> \t\t Archivo contra el que testear"
+    print "-s \t\t testing mode (solo si el entrenamiento tiene 'class') "
+    return
 
 
 def test_DecisionTreeClassifier():
@@ -83,7 +136,7 @@ def development_testing():
     for grid in clasificadores:
         print("Best Score: %s Best Params: %s" % (grid.best_score_ , grid.best_params_))
 
-def final_build():
+def final_build(option,inputfile,outputfile,modelo_a_utlizar,testing,testing_mode):
     clasificadores = [
         DecisionTreeClassifier(max_depth=50, min_samples_split=1),
         MultinomialNB(alpha=0.1),
@@ -92,23 +145,28 @@ def final_build():
         RandomForestClassifier(n_estimators=100,max_depth=None, max_features=10),
     ]
     lista_de_atributos_a_buscar = cargar_atributos()
-    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev_test.json', 'datos/spam_dev_test.json', verbose=0)
+    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter(inputfile + 'ham_dev_test.json', inputfile+'spam_dev_test.json', verbose=0)
     dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
     spam_filter = SpamFilter(dataframe, clasificadores, lista_de_atributos_a_buscar, utilizar_cache=False)
-    spam_filter.entrenar()
+    if modelo_a_utlizar is None:
+        spam_filter.entrenar()
+    else:
+        spam_filter.cargar_modelo(modelo_a_utlizar,option)
 
+    if outputfile is not None:
+        spam_filter.guardar_modelo(outputfile,option)
 
-    loader_de_mensajes_para_testing = LoaderDeMensajesParaSpamFilter('datos/ham_dev_test.json', 'datos/spam_dev_test.json', verbose=0)
+    loader_de_mensajes_para_testing = LoaderDeMensajesParaSpamFilter(testing + 'ham_dev_entrenamiento.json', testing + 'spam_dev_entrenamiento.json', verbose=0)
     dataframe = loader_de_mensajes_para_testing.crear_dataframe()
     lista_mensajes = spam_filter.conseguir_valores(dataframe)
     modo_prediccion = False
-    if(modo_prediccion):
-        spam_filter.predecir(lista_mensajes)
+    if testing_mode is not True:
+        spam_filter.predecir(lista_mensajes,option)
     else:
         #modo testeo
         clasificaciones = dataframe['class']
         print "Score:"
-        print spam_filter.dar_score(lista_mensajes,clasificaciones)
+        print spam_filter.dar_score(lista_mensajes,clasificaciones,option)
 
 def cargar_datos_de_prueba():
     loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev_test.json', 'datos/spam_dev_test.json', verbose=0)
