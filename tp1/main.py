@@ -141,7 +141,7 @@ def final_build(option,inputfile,outputfile,modelo_a_utlizar,testing,testing_mod
         DecisionTreeClassifier(max_depth=50, min_samples_split=1),
         MultinomialNB(alpha=0.1),
         Pipeline([('pca',PCA(n_components=2)),('clasificador',KNeighborsClassifier(n_neighbors=1,weights='uniform'))]),
-        SVC(),
+        Pipeline([('pca',PCA(n_components=70)),('clasificador',SVC(kernel='linear'))]),
         RandomForestClassifier(n_estimators=100,max_depth=None, max_features=10),
     ]
     lista_de_atributos_a_buscar = cargar_atributos()
