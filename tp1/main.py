@@ -60,10 +60,10 @@ def main():
     filepath_de_modelo_a_utlizar = None
     numero_de_clasificador = 0
 
-    if len(sys.argv) <= 1:
+    if len(sys.argv) <= 2:
         print_options()
         sys.exit()
-    argv = sys.argv[2:]
+    argv = sys.argv[3:]
 
     try:
         opts, args = getopt.getopt(argv, "hc:i:o:t:m:a:", ["ifolder=", "ofolder="])
@@ -75,7 +75,7 @@ def main():
         if opt == '-h':
             print_options()
             sys.exit()
-        elif opt in ("c-", "--clasificador"):
+        elif opt in ("-c", "--clasificador"):
             numero_de_clasificador = int(arg)
         elif opt in ("-i", "--input_folder"):
             input_folder = arg
