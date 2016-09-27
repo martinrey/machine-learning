@@ -1,102 +1,102 @@
-Como ya adelantamos en la seccion anterior el objetivo de este tp será clasificar mails en spam y no spam, para ellos, comenzaremos el trabajo seleccionando atributos adecuados que concideramos dividen bien el problema.
+Como ya adelantamos en la seccion anterior, el objetivo de este trabajo práctico será clasificar mails en \textit{spam} y \textit{ham}. Para ello, comenzaremos seleccionando atributos adecuados que consideramos que dividen bien el problema.
 
-\subsection{Selección De atributos}
+\subsection{Selección de atributos}
 
-Para la selección de atributos observamos parte del json entregado en busca de palabras claves que pudieran distinguir entre spam y no spam (desde ahora, ham).
+Para la selección de atributos observamos parte del \textit{JSON} entregado en busca de palabras claves que pudieran distinguir entre \textit{spam} y \textit{ham}.
 
-De este analisis se encontró que palabras tales como $viagra$ o $nigeria$ son muy frecuentes en los mensajes de spam, asi tambien aquellas que hagan referencia a negocios o a dinero, por lo que incluimos atributos que cuenten las veces que son mencionados estas palabras en el cuerpo y el encabezado del mensaje. Así tambien observamos que los mails de spam tienden a tener enlaces hacia sitios web o contenido html en el cuerpo del mensaje por lo que tambien contavilizamos la cantidad de ocurrencias de palabras tales como html o http y simbolos especiales como la barra invertida, o el hashtag.
+De este análisis se encontró que palabras tales como \textit{viagra} o \textit{nigeria} son muy frecuentes en los mensajes de \textit{spam}, como también aquellas que hagan referencia a negocios o a dinero, por lo que incluímos atributos que cuenten las veces que son mencionadas estas palabras en el cuerpo y el encabezado del mensaje. Así tambien observamos que los mails de \textit{spam} tienden a tener enlaces hacia sitios web o contenido HTML en el cuerpo del mensaje por lo que también contamos la cantidad de ocurrencias de palabras tales como \textit{html} o \textit{http} y símbolos especiales como la barra invertida, o el \textit{hashtag}.
 
-De esta menera reunimos al rededor de $100$ atributos que utilizaremos a continuación para la experimentación.
+De esta menera reunimos alrededor de \textit{100} atributos que utilizaremos a continuación para la experimentación.
 
 \subsection{Experimentación}
 
 Los clasificadores que utilizaremos para experimentar en este trabajo serán: 
 
 \begin{itemize}
-\item	Arboles de Deciciones
-\item	Naive bayes Multinomial
-\item	Vecinos mas Cercanos
-\item	SVC
+\item	Árboles de Decisión
+\item	Multinomial Naive Bayes 
+\item	Vecinos más cercanos
+\item	SVM (SVC)
 \item	Random Forest
 \end{itemize}
 
-Para cada uno de ellos utilizaremos grid search para intentar encontrar los hiperparametros que logren la mejor clasificación.
+Para cada uno de ellos utilizaremos \textit{GridSearch} para intentar encontrar los hiperparámetros que logren la mejor clasificación.
 
-En cada una de las experimentaciónes utilizamos grid search de sklearn con $10$ kfolds.
+En cada una de las experimentaciones utilizamos \textit{GridSearch} de \textit{sklearn} con 10 \textit{kfolds}.
 
-\subsubsection{Arboles de Deciciones}
+\subsubsection{Árboles de decisión}
 
-Como vimos en clase, este clasificador intentará aplicar una serie de reglas sucesivas para determinar la clasificación. Por ejemplo, un posible arbol de decición para clasificar spam podría ser, si el mensaje contiene la palabra $nigeria$ mas de $4$ veces, es spam, si no ver cuantas veces se menciona $html$ en el mensaje, si el resultado esta entre $4$ y $7$ es spam, si no no... y así sucecivamente.
+Como vimos en clase, este clasificador intentará aplicar una serie de reglas sucesivas para determinar la clasificación. Por ejemplo, un posible árbol de decisión para clasificar \textit{spam} podría ser: si el mensaje contiene la palabra $nigeria$ mas de $4$ veces, es \textit{spam}, si no, podríamos ver cuántas veces se menciona $html$ en el mensaje, si este resultado está entre $4$ y $7$ es \textit{spam}, si no no... y así sucesivamente.
 
-En particular, los hiperparametros que querremos encontrar para este algoritmo en particular son: la maxima profunididad del arbol, y la cantidad minima de muestras necesarias para dividir un nodo.
+En particular, los hiperparámetros que queremos encontrar para este algoritmo en particular son: la máxima profunididad del árbol, y la cantidad mínima de muestras necesarias para dividir un nodo.
 
-Experimentamos variando los hiperparametros entre los siguientes valores:
+Experimentamos variando los hiperparámetros entre los siguientes valores:
 
 \begin{itemize}
 \item $max\_depth: 1,3,5,10,15,50,100$ 
 \item $min\_samples\_split: 1,3,5,10,15$
 \end{itemize}
 
-El mejor resultado obtenido fue de $0.965975308642$ con un $max\_depth$ de $50$ y un min sammple split de $1$.
+El mejor resultado obtenido fue de $0.965975308642$ con un $max\_depth$ de $50$ y un \textit{min sample split} de $1$.
 
 % concluciones
 %Best Score: 0.965975308642 Best Params: {'max_depth': 50, 'min_samples_split': 1}
 
 
-\subsubsection{Naive bayes Multinomial}
+\subsubsection{Multinomial Naive Bayes}
 
-El objetivo del Naive bayes será encontrar la clase mas probable de cada instancia en base al calculo de la probabilidad bayesiana. 
+El objetivo del Naive Bayes será encontrar la clase más probable de cada instancia en base al cálculo de la probabilidad bayesiana. 
 
-Para este clasificador querremos encontrar el mejor suabizado laplaciano ($alfa$), para ello experimentamos con los siguientes valores:
+Para este clasificador queremos encontrar el mejor suavizado laplaciano ($alfa$), para ello experimentamos con los siguientes valores:
 \begin{itemize}
 \item $alfa: 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.8,0.9,1$
 \end{itemize}
 
-El resultado del grid search arroja que el mejor score resulto ser de $0.587740740741$ con un alpha de $0.1$
+El resultado del \textit{GridSearch} arroja que el mejor score resulto ser de $0.587740740741$ con un alpha de $0.1$
 
 %Best Score: 0.587740740741 Best Params: {'alpha': 0.1}
 
-\subsubsection{Vecinos mas Cercanos}
+\subsubsection{Vecinos más cercanos}
 
-La idea tras este clasificador es dada una nueva instancia a clasificar, comparar sus atributos contra todos los de la base de entrenamiento y quedarnos con k vacinos mas $cercanos$. La $cercania$ de una instancia con otra puede calcularse como la norma dos de los atributos al cuadrado o alguna otra función que nos permita definir una distancia relativa entre dos hiperplanos. Para este clasificador querremos determinar la cantidad de vecinos optimo y la función de peso a utilizar en la predicción. Para esto ultimo tendremos dos posivilidades, con pesos uniformes o por distancia. Para poner un ejemplo sobre cual es la diferencia, supongo que seteo como hiperparametro que la cantidad de vecinos es igual a $3$ y para un mensaje dado obtengo que el primer vecino es spam y los otros dos son ham. Con una función uniforme, se determinará que el mail es ham, ya que ham es mayoría. Pero podría darse el caso en que el primer vecino se encuentre a una distancia infima del mail a clasificar y que los otros dos se encuentren a una distancia extremadamente grande. En ese caso sería mas razonable asignarle mas peso al primer vecino de manera tal que el mail sea clasificado como spam. Esta segunda solución será la de utlizar pesos variables que dependan de la distancia.
+La idea tras este clasificador es dada una nueva instancia a clasificar, comparar sus atributos contra todos los de la base de entrenamiento y quedarnos con $k$ vecinos más \textit{cercanos}. La \textit{cercanía} de una instancia con otra puede calcularse como la norma 2 de los atributos al cuadrado o alguna otra función que nos permita definir una distancia relativa entre dos hiperplanos. Para este clasificador queremos determinar la cantidad de vecinos óptima y la función de peso a utilizar en la predicción. Para esto último tendremos dos posibilidades, con pesos uniformes o por distancia. Para dar un ejemplo sobre cuál es la diferencia, supongamos que seteo como hiperparámetro que la cantidad de vecinos es igual a $3$ y para un mensaje dado obtengo que el primer vecino es \textit{spam} y los dos restantes son \textit{ham}. Con una función uniforme, se determinará que el mail es \textit{ham}, ya que \textit{ham} es mayoría. Pero podría darse el caso en que el primer vecino se encuentre a una distancia ínfima del mail a clasificar y que los otros dos se encuentren a una distancia extremadamente grande. En ese caso sería más razonable asignarle mayor peso al primer vecino de manera tal que el mail sea clasificado como \textit{spam}. Esta segunda solución será la de utlizar pesos variables que dependan de la distancia.
 
-Para este clasificador provamos con $1,3,5,7,10$ y $15$ vecinos y el mejor resultado obtenido fue de $0.908358024691$ con una cantidad de vecinos igual a $1$ y pesos uniformes.
+Para este clasificador probamos con $1,3,5,7,10$ y $15$ vecinos y el mejor resultado obtenido fue de $0.908358024691$ con una cantidad de vecinos igual a $1$ y pesos uniformes.
 
 %Best Score: 0.908358024691 Best Params: {'n_neighbors': 1, 'weights': 'uniform'}
 
-\subsubsection{SVC}
+\subsubsection{SVM (SVC)}
 
 %Sin resultados yet
 
 \subsubsection{Random Forest}
 
-Este clasificador consiste en crear una gran cantidad de arboles de decición, y al momento de clasificar elegir el resultado que sea la moda de las clasificaciones determinadas por los arboles individuales.
+Este clasificador consiste en crear una gran cantidad de árboles de desición, y al momento de clasificar se elige el resultado que sea la moda de las clasificaciones, determinadas por los árboles individuales.
 
-Para este estimador querremos definir la cantidad de arboles de decición a utilizar, la profundidad maxima que se le permitirá tener a cada arbol, y maxima cantidad de atributos a conciderar cuando se este realizando la divición de un nodo.
+Para este estimador queremos definir la cantidad de árboles de decisión a utilizar, la profundidad máxima que se le permitirá tener a cada árbol, y la máxima cantidad de atributos a considerar cuando se esté realizando la división de un nodo.
 
-Experimentamos con $2,5,10,15,40,100$ arboles, $2,5,10,20$ atributos a considerar al momento de la divición de un nodo y una profundidad maxima de $3,5,20$ y sin restricciones
+Experimentamos con $2,5,10,15,40,100$ árboles, $2,5,10,20$ atributos a considerar al momento de la división de un nodo y una profundidad máxima de $3,5,20$ y sin restricciones.
 
 %grid_param = {"n_estimators":[2,5,10,15,40,100],"max_features":[2,5,10,20], "max_depth":[3,5,20,None]}
 
-Para este estimador el mejor resultado fue de $0.979098765432$ con una cantidad de arboles igual a $100$, una profundidad irrestricta y una cantidad de features a examinar igual a $10$.
+Para este estimador, el mejor resultado fue de $0.979098765432$ con una cantidad de árboles igual a $100$, una profundidad irrestricta y una cantidad de \textit{features} a examinar igual a $10$.
 
 %Best Score: 0.979098765432 Best Params: {'n_estimators': 100, 'max_depth': None, 'max_features': 10}
 
 \subsection{PCA}
 
-Para intentar mejorar la precición de los resultados utilizamos PCA para obtener las componentes principales de nuestro set de atrubutos. 
+Para intentar mejorar la precisión de los resultados utilizamos PCA para obtener las componentes principales de nuestro set de atributos. 
 
-Ademas utlizamos grid search para obtener cual era la cantidad optima de componentes principales para cada uno de los algoritmos. Utilizamos $2,5,10,40,70$ componentes para la experimentación.
+Además, utlizamos \textit{GridSearch} para obtener cuál era la cantidad óptima de componentes principales para cada uno de los algoritmos. Utilizamos $2,5,10,40,70$ componentes para la experimentación.
 
-Lo que observamos fue que tanto en arboles de decición como en random forests las respuestas resultaron ser levemente peores, pasando de un mejor resultado de $0.965975308642$ a $0.931592592593$ y de $0.967962962963$ a $0.979098765432$, respectivamente.
+Lo que observamos fue que tanto en árboles de decisión como en Random Forests las respuestas resultaron ser levemente peores, pasando de un mejor resultado de $0.965975308642$ a $0.931592592593$ y de $0.967962962963$ a $0.979098765432$, respectivamente.
 
-Para el algoritmo de naive vayes esta vez utilizamos un modelo gaussiano, pero los resultados siguieron sin ser muy buenos, obteniendo un score del $0.596308641975$
+Para el algoritmo de Naive Bayes esta vez utilizamos un modelo gaussiano, pero los resultados siguieron sin ser muy buenos, obteniendo un score del $0.596308641975$
 
-Para vecinos mas cercanos el cambio de performance no fue notable, obteniendo una respuesta de 0.908.
+Para vecinos más cercanos, el cambio de performance no fue notable, obteniendo una respuesta de 0.908.
 
-Si bien entendemos que los resultados del grid search podrian haber sido mejores variando nuevamente los parametros del apartado anterior junto con la cantidad de componentes (sobretodo en el caso de vecinos mas cercanos), esto también resultaba muy caro computacionalmente y por cuestiones de tiempo no lo incluimos en el trabajo.
+Si bien entendemos que los resultados del \textit{GridSearch} podrían haber sido mejores variando nuevamente los parámetros del apartado anterior junto con la cantidad de componentes (sobre todo en el caso de vecinos más cercanos), esto también resultaba muy caro computacionalmente y por cuestiones de tiempo \textit{no} lo incluímos en el trabajo.
 
-%Arboles de Deciciones
+%Árboles de Decisión
 %Best Score: 0.931592592593 Best Params: {'pca__n_components': 30}
 %En este usamos Naive bayes gaussiano porque el multinomial 
 %Best Score: 0.596308641975 Best Params: {'pca__n_components': 30}

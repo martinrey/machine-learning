@@ -47,7 +47,7 @@ def print_options():
     print("-d <development_testing> \t\t modo de testing para el desarollo")
     print("-m <model_filepath> \t\t ruta al archivo del modelo a utilizar (se guardarán los modelos en la output_folder"
           " a medida que se corra el programa)")
-    print("-a <already_classified> \t\t marca que el entrenamiento ya estaba clasificado y el dataframe no se toma"
+    print("-a <already_classified> \t\t marca que el entrenamiento ya estaba clasificado y el clasificador no se toma"
           " el trabajo de predecir")
     return
 

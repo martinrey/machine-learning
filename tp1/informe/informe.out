@@ -1,5 +1,11 @@
-\BOOKMARK [1][-]{section.1}{Introduccion}{}% 1
+\BOOKMARK [1][-]{section.1}{Introducci\363n}{}% 1
 \BOOKMARK [1][-]{section.2}{Desarrollo}{}% 2
-\BOOKMARK [2][-]{subsection.2.1}{Selecci\363n De atributos}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.1}{Selecci\363n de atributos}{section.2}% 3
 \BOOKMARK [2][-]{subsection.2.2}{Experimentaci\363n}{section.2}% 4
-\BOOKMARK [1][-]{section.3}{Concluciones}{}% 5
+\BOOKMARK [3][-]{subsubsection.2.2.1}{\301rboles de decisi\363n}{subsection.2.2}% 5
+\BOOKMARK [3][-]{subsubsection.2.2.2}{Multinomial Naive Bayes}{subsection.2.2}% 6
+\BOOKMARK [3][-]{subsubsection.2.2.3}{Vecinos m\341s cercanos}{subsection.2.2}% 7
+\BOOKMARK [3][-]{subsubsection.2.2.4}{SVM \(SVC\)}{subsection.2.2}% 8
+\BOOKMARK [3][-]{subsubsection.2.2.5}{Random Forest}{subsection.2.2}% 9
+\BOOKMARK [2][-]{subsection.2.3}{PCA}{section.2}% 10
+\BOOKMARK [1][-]{section.3}{Concluciones}{}% 11
