@@ -21,12 +21,12 @@ class ErrorDeAnalizadorDeMensaje(Exception):
 class AnalizadorDeMensajes(object):
     FILEPATH_DE_ARCHIVO_DE_CACHE = 'cache/lista_de_mensajes.cache'
 
-    def __init__(self, lista_de_atributos_a_buscar, dataframe, utilizar_cache=True,verbose=True):
+    def __init__(self, lista_de_atributos_a_buscar, dataframe, utilizar_cache=True, verbose=True):
         self._assert_que_la_lista_tiene_al_menos_un_atributo_valido(lista_de_atributos_a_buscar)
         self._lista_de_atributos_a_buscar = lista_de_atributos_a_buscar
         self._dataframe = dataframe
         self.utilizar_cache = utilizar_cache
-        self._verbose=verbose
+        self._verbose = verbose
 
     @classmethod
     def _assert_que_la_lista_tiene_al_menos_un_atributo_valido(cls, lista_de_atributos_a_buscar):
@@ -43,22 +43,17 @@ class AnalizadorDeMensajes(object):
 
     def analizar_mensajes(self):
         lista_de_mensajes = self._cargar_mensajes()
-        if(self._verbose):
-            self._mensaje_de_progreso_de_atributos()
+        self._mensaje_de_progreso_de_atributos()
         for atributo in self._lista_de_atributos_a_buscar:
-            if(self._verbose):
-                self._mensaje_de_progreso_para_atributo(atributo.nombre())
+            self._mensaje_de_progreso_para_atributo(atributo.nombre())
             self._dataframe[atributo.nombre()] = list(map(atributo.extraer_de, lista_de_mensajes))
 
     def _cargar_mensajes(self):
-        if(self._verbose):
-            self._mensaje_de_progreso_de_listado_de_mensajes()
+        self._mensaje_de_progreso_de_listado_de_mensajes()
         if self.utilizar_cache and self._existe_cache_de_mensajes():
-            if(self._verbose):
-                self._mensaje_de_progreso_para_cargar_lista_de_mensajes_desde_la_cache()
+            self._mensaje_de_progreso_para_cargar_lista_de_mensajes_desde_la_cache()
             lista_de_mensajes = self._cargar_lista_de_mensajes_desde_cache()
-            if(self._verbose):
-                self._mensaje_de_exito_de_carga_de_listado_de_mensajes_en_cache()
+            self._mensaje_de_exito_de_carga_de_listado_de_mensajes_en_cache()
             return lista_de_mensajes
         else:
             lista_de_mensajes = self._generar_lista_de_mensajes()
@@ -85,16 +80,21 @@ class AnalizadorDeMensajes(object):
         file_de_cache.close()
 
     def _mensaje_de_progreso_de_listado_de_mensajes(self):
-        print('----------- Procesando lista de mensajes (puede demorar unos minutos...) -----------')
+        if self._verbose:
+            print('----------- Procesando lista de mensajes (puede demorar unos minutos...) -----------')
 
     def _mensaje_de_progreso_para_cargar_lista_de_mensajes_desde_la_cache(self):
-        print(' - Cargando lista de mensajes desde la caché...')
+        if self._verbose:
+            print(' - Cargando lista de mensajes desde la caché...')
 
     def _mensaje_de_exito_de_carga_de_listado_de_mensajes_en_cache(self):
-        print(' - Lista de mensajes cargada desde la caché')
+        if self._verbose:
+            print(' - Lista de mensajes cargada desde la caché')
 
     def _mensaje_de_progreso_de_atributos(self):
-        print('----------- Analizando atributos -----------')
+        if self._verbose:
+            print('----------- Analizando atributos -----------')
 
     def _mensaje_de_progreso_para_atributo(self, nombre_de_atributo):
-        print(' - Analizando %s... ' % nombre_de_atributo)
+        if self._verbose:
+            print(' - Analizando %s... ' % nombre_de_atributo)

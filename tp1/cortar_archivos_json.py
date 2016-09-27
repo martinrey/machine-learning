@@ -11,7 +11,6 @@ def crear_archivos_de_entrenamiento_y_test_desde(nombre_archivo):
 
     mensajes_totales = len(datos_txt)
     indice_de_corte = int(math.floor(mensajes_totales * (1.0 - PORCENTAJE_DE_TEST)))
-    indice_de_corte
     parte_de_entrenamiento = datos_txt[:indice_de_corte]
     parte_de_test = datos_txt[indice_de_corte:]
 

@@ -1,181 +1,102 @@
 # coding=utf-8
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.svm import SVC
-from sklearn.grid_search import GridSearchCV
+import getopt
+import sys
+
 from sklearn.decomposition import PCA
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.grid_search import GridSearchCV
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
 
 from atributo import CantidadDeAparicionesDePalabra, CantidadDeAparicionesDeCaracter
 from loader_de_mensajes_para_spam_filter import LoaderDeMensajesParaSpamFilter
 from spam_filter import SpamFilter
-import sys, getopt
+
+# VARIABLES DEL ENTORNO DEL PROGRAMA
+
+TESTING_BUILD = False
+CARPETA_DEFAULT_INPUT = 'datos/'
+CARPETA_DEFAULT_OUTPUT = 'trained/'
+CARPETA_DEFAULT_TESTING = 'datos/'
+CLASIFICADORES_POR_NUMERO = {
+    0: DecisionTreeClassifier(max_depth=50, min_samples_split=1),
+    1: MultinomialNB(alpha=0.1),
+    2: Pipeline([('pca', PCA(n_components=2)),
+                 ('clasificador', KNeighborsClassifier(n_neighbors=1, weights='uniform'))]),
+    3: Pipeline([('pca', PCA(n_components=70)), ('clasificador', SVC(kernel='linear'))]),
+    4: RandomForestClassifier(n_estimators=100, max_depth=None, max_features=10),
+}
+
+
+
+def print_options():
+    print('main.py -c numero_clasificador')
+    print('-c <clasificador> \t\t el número del clasificador puede ser: ')
+    print("0. DecisionTreeClassifier")
+    print("1. MultinomialNB")
+    print("2. KNeighborsClassifier")
+    print("3. SVC")
+    print("4. RandomForestClassifier")
+    print("Flags:")
+    print("-i <input_folder> \t\t carpeta con archivos de entrenamiento")
+    print("-o <output_folder> \t\t carpeta donde se guardarán los resultados")
+    print("-t <testing_folder> \t\t carpeta contenedora de los archivos contra los cuales testear")
+    print("-d <development_testing> \t\t modo de testing para el desarollo")
+    print("-m <model_filepath> \t\t ruta al archivo del modelo a utilizar (se guardarán los modelos en la output_folder"
+          " a medida que se corra el programa)")
+    print("-a <already_classified> \t\t marca que el entrenamiento ya estaba clasificado y el dataframe no se toma"
+          " el trabajo de predecir")
+    return
+
 
 def main():
-    uso_input = False
-    guardar_red = False
-    cargar_red = False
-    testear_resultados = False
-    inputfile = 'datos/'
-    outputfile = 'trained/'
-    testing = 'datos/'
-    testing_mode = False
-    option = int(sys.argv[1])
-    modelo_a_utlizar = None
+    input_folder = CARPETA_DEFAULT_INPUT
+    output_folder = CARPETA_DEFAULT_OUTPUT
+    testing_folder = CARPETA_DEFAULT_TESTING
+    ya_clasificado = False
+    filepath_de_modelo_a_utlizar = None
+    numero_de_clasificador = 0
 
-    if(len(sys.argv) <= 1):
+    if len(sys.argv) <= 1:
         print_options()
         sys.exit()
     argv = sys.argv[2:]
 
     try:
-        opts, args = getopt.getopt(argv,"hi:o:n:t:s:",["ifile=","ofile="])
+        opts, args = getopt.getopt(argv, "hc:i:o:t:m:a:", ["ifolder=", "ofolder="])
     except getopt.GetoptError:
         print_options()
         sys.exit()
+
     for opt, arg in opts:
         if opt == '-h':
             print_options()
             sys.exit()
-        elif opt in ("-i", "--inputfile"):
-            uso_input = True
-            inputfile = arg
-        elif opt in ("-o", "--outputfile"):
-            guardar_red = True
-            outputfile = arg
-        elif opt in ("-n", "--net"):
-            cargar_red = True
-            modelo_a_utlizar = arg
-        elif opt in ("-t", "--testing"):
-            testear_resultados = True
-            testing = arg
-        elif opt in ("-s", "--s"):
-            testing_mode = True
-    testing_build = False
-    if(testing_build):
+        elif opt in ("c-", "--clasificador"):
+            numero_de_clasificador = int(arg)
+        elif opt in ("-i", "--input_folder"):
+            input_folder = arg
+        elif opt in ("-o", "--output_folder"):
+            output_folder = arg
+        elif opt in ("-t", "--testing_folder"):
+            testing_folder = arg
+        elif opt in ("-m", "--model_filepath"):
+            filepath_de_modelo_a_utlizar = arg
+        elif opt in ("-a", "--already_classified"):
+            ya_clasificado = True
+
+    if TESTING_BUILD:
         development_testing()
     else:
-        final_build(option,inputfile,outputfile,modelo_a_utlizar,testing,testing_mode)
+        final_build(numero_de_clasificador, input_folder, output_folder, testing_folder, filepath_de_modelo_a_utlizar,
+                    ya_clasificado)
 
 
-def print_options():
-    print 'main.py numero_clasificador'
-    print "0. DecisionTreeClassifier"
-    print "1. MultinomialNB"
-    print "2. KNeighborsClassifier"
-    print "3. SVC"
-    print "4. RandomForestClassifier"
-    print "Flags:"
-    print "-i <inputfile> \t\t archivo de entrenamiento"
-    print "-o <outputfile> \t Archivo donde guardar modelo"
-    print "-n <net> \t\t Modelo a utilizar"
-    print "-t <testing> \t\t Archivo contra el que testear"
-    print "-s \t\t testing mode (solo si el entrenamiento tiene 'class') "
-    return
-
-
-def test_DecisionTreeClassifier():
-    grid_param = {"max_depth": [1,3,5,10,15,50,100], "min_samples_split": [1,3,5,10,15], }
-    return grid_param
-
-def test_MultinomialNB():
-    grid_param = {"alpha": [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.8,0.9,1]}
-    return grid_param
-
-def test_KNeighborsClassifier():
-    grid_param = {"n_neighbors": [1,3,5,7,10,15], "weights": ["uniform","distance"]}
-    return grid_param
-
-
-def test_SVC():
-    grid_param = {"kernel":['linear'], "degree":[2,3,4], "probability": [True, False]}
-    return grid_param
-
-def test_RandomForestClassifier():
-    grid_param = {"n_estimators":[2,5,10,15,40,100],"max_features":[2,5,10,20], "max_depth":[3,5,20,None]}
-    return grid_param
-
-def development_testing():
-    # clasificadores = [
-    #     GridSearchCV(DecisionTreeClassifier(), param_grid=test_DecisionTreeClassifier(),cv=10),
-    #     GridSearchCV(MultinomialNB(), param_grid=test_MultinomialNB()),
-    #     GridSearchCV(KNeighborsClassifier(), param_grid=test_KNeighborsClassifier()),
-    #     GridSearchCV(SVC(), param_grid=test_SVC()),
-    #     GridSearchCV(RandomForestClassifier(), param_grid=test_RandomForestClassifier()),
-    # ]
-    #uso de pca para reducir dimencionalidad y mejorar resultados
-
-    clasificadores = [
-        DecisionTreeClassifier(max_depth=50, min_samples_split=1),
-        MultinomialNB(alpha=0.1),
-        KNeighborsClassifier(n_neighbors=1,weights='uniform'),
-        #SVC(),
-        RandomForestClassifier(n_estimators=100,max_depth=None, max_features=10),
-    ]
-    pipelined_class = []
-    pca = PCA(n_components=2)
-    for clasificador in clasificadores:
-        pipe = [('pca',pca),('clasificador',clasificador)]
-        pipelined_class.append(GridSearchCV(Pipeline(pipe),{'pca__n_components':[2,5,10,40,70]}))
-
-    clasificadores = pipelined_class
-
-    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev_entrenamiento.json', 'datos/spam_dev_entrenamiento.json')
-    dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
-    #para buscar mejores parametros de clasificadores
-    
-    lista_de_atributos_a_buscar = cargar_atributos()
-
-
-    spam_filter = SpamFilter(dataframe, clasificadores, lista_de_atributos_a_buscar, utilizar_cache=False)
-    print('Cantidad de atributos utilizados: %s' % len(lista_de_atributos_a_buscar))
-    spam_filter.hacer_cross_validation(mostrar_resultados_intermedios=False, utilizo_grid_search=True)
-
-    for grid in clasificadores:
-        print("Best Score: %s Best Params: %s" % (grid.best_score_ , grid.best_params_))
-
-def final_build(option,inputfile,outputfile,modelo_a_utlizar,testing,testing_mode):
-    clasificadores = [
-        DecisionTreeClassifier(max_depth=50, min_samples_split=1),
-        MultinomialNB(alpha=0.1),
-        Pipeline([('pca',PCA(n_components=2)),('clasificador',KNeighborsClassifier(n_neighbors=1,weights='uniform'))]),
-        Pipeline([('pca',PCA(n_components=70)),('clasificador',SVC(kernel='linear'))]),
-        RandomForestClassifier(n_estimators=100,max_depth=None, max_features=10),
-    ]
-    lista_de_atributos_a_buscar = cargar_atributos()
-    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter(inputfile + 'ham_dev_test.json', inputfile+'spam_dev_test.json', verbose=0)
-    dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
-    spam_filter = SpamFilter(dataframe, clasificadores, lista_de_atributos_a_buscar, utilizar_cache=False)
-    if modelo_a_utlizar is None:
-        spam_filter.entrenar()
-    else:
-        spam_filter.cargar_modelo(modelo_a_utlizar,option)
-
-    if outputfile is not None:
-        spam_filter.guardar_modelo(outputfile,option)
-
-    loader_de_mensajes_para_testing = LoaderDeMensajesParaSpamFilter(testing + 'ham_dev_entrenamiento.json', testing + 'spam_dev_entrenamiento.json', verbose=0)
-    dataframe = loader_de_mensajes_para_testing.crear_dataframe()
-    lista_mensajes = spam_filter.conseguir_valores(dataframe)
-    modo_prediccion = False
-    if testing_mode is not True:
-        spam_filter.predecir(lista_mensajes,option)
-    else:
-        #modo testeo
-        clasificaciones = dataframe['class']
-        print "Score:"
-        print spam_filter.dar_score(lista_mensajes,clasificaciones,option)
-
-def cargar_datos_de_prueba():
-    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev_test.json', 'datos/spam_dev_test.json', verbose=0)
-    dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
-    nombres_de_atributos_utilizados = list(map(lambda atributo: atributo.nombre(),lista_de_atributos_a_buscar))
-
-
-def cargar_atributos():
-    lista_de_atributos_a_buscar = [
+def lista_de_atributos():
+    return [
         CantidadDeAparicionesDePalabra('vicodin'), CantidadDeAparicionesDePalabra('viagra'),
         CantidadDeAparicionesDePalabra('html'), CantidadDeAparicionesDePalabra('http'),
         CantidadDeAparicionesDePalabra('make'), CantidadDeAparicionesDePalabra('conference'),
@@ -228,7 +149,85 @@ def cargar_atributos():
         CantidadDeAparicionesDeCaracter('#'), CantidadDeAparicionesDeCaracter(' '),
         CantidadDeAparicionesDeCaracter(';'),
     ]
-    return lista_de_atributos_a_buscar
+
+
+def final_build(numero_de_clasificador, input_folder=CARPETA_DEFAULT_INPUT, output_folder=CARPETA_DEFAULT_OUTPUT,
+                testing_folder=CARPETA_DEFAULT_TESTING, filepath_de_modelo_a_utlizar=None, ya_clasificado=False):
+    clasificador = CLASIFICADORES_POR_NUMERO[numero_de_clasificador]
+    lista_de_atributos_a_buscar = lista_de_atributos()
+    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter(input_folder + 'ham_dev_test.json',
+                                                                         input_folder + 'spam_dev_test.json', verbose=0)
+    dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
+    spam_filter = SpamFilter(dataframe, [clasificador], lista_de_atributos_a_buscar, utilizar_cache=False)
+
+    if filepath_de_modelo_a_utlizar:
+        spam_filter.cargar_modelo(filepath_de_modelo_a_utlizar)
+    else:
+        spam_filter.entrenar()
+        spam_filter.guardar_modelo(output_folder, numero_de_clasificador=numero_de_clasificador)
+
+    dataframe, lista_mensajes = preparar_archivos_contra_cuales_testear(spam_filter, testing_folder)
+    if ya_clasificado:
+        clasificaciones = dataframe['class']
+        print("Score: %s" % spam_filter.score(lista_mensajes, clasificaciones))
+    else:
+        prediccion = spam_filter.predecir(lista_mensajes)
+        devolver_lista_de_clasificaciones(prediccion)
+
+
+def devolver_lista_de_clasificaciones(prediccion):
+    for clasificacion in prediccion:
+        print(clasificacion)
+
+
+def preparar_archivos_contra_cuales_testear(spam_filter, testing_folder):
+    loader_de_mensajes_para_testing = LoaderDeMensajesParaSpamFilter(testing_folder + 'ham_dev_entrenamiento.json',
+                                                                     testing_folder + 'spam_dev_entrenamiento.json',
+                                                                     verbose=0)
+    dataframe = loader_de_mensajes_para_testing.crear_dataframe()
+    lista_mensajes = spam_filter.valores(dataframe)
+    return dataframe, lista_mensajes
+
+
+def development_testing():
+    # clasificadores = [
+    #     GridSearchCV(DecisionTreeClassifier(), param_grid=test_DecisionTreeClassifier(),cv=10),
+    #     GridSearchCV(MultinomialNB(), param_grid=test_MultinomialNB()),
+    #     GridSearchCV(KNeighborsClassifier(), param_grid=test_KNeighborsClassifier()),
+    #     GridSearchCV(SVC(), param_grid=test_SVC()),
+    #     GridSearchCV(RandomForestClassifier(), param_grid=test_RandomForestClassifier()),
+    # ]
+    # uso de pca para reducir dimencionalidad y mejorar resultados
+
+    clasificadores = [
+        DecisionTreeClassifier(max_depth=50, min_samples_split=1),
+        MultinomialNB(alpha=0.1),
+        KNeighborsClassifier(n_neighbors=1, weights='uniform'),
+        # SVC(),
+        RandomForestClassifier(n_estimators=100, max_depth=None, max_features=10),
+    ]
+    pipelined_class = []
+    pca = PCA(n_components=2)
+    for clasificador in clasificadores:
+        pipe = [('pca', pca), ('clasificador', clasificador)]
+        pipelined_class.append(GridSearchCV(Pipeline(pipe), {'pca__n_components': [2, 5, 10, 40, 70]}))
+
+    clasificadores = pipelined_class
+
+    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev_entrenamiento.json',
+                                                                         'datos/spam_dev_entrenamiento.json')
+    dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
+    # para buscar mejores parametros de clasificadores
+
+    lista_de_atributos_a_buscar = lista_de_atributos()
+
+    spam_filter = SpamFilter(dataframe, clasificadores, lista_de_atributos_a_buscar, utilizar_cache=False)
+    print('Cantidad de atributos utilizados: %s' % len(lista_de_atributos_a_buscar))
+    spam_filter.hacer_cross_validation(mostrar_resultados_intermedios=False, utilizo_grid_search=True)
+
+    for grid in clasificadores:
+        print("Best Score: %s Best Params: %s" % (grid.best_score_, grid.best_params_))
+
 
 if __name__ == '__main__':
     main()

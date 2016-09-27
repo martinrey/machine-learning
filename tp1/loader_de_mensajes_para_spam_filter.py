@@ -4,14 +4,13 @@ import pandas as pd
 
 
 class LoaderDeMensajesParaSpamFilter(object):
-    def __init__(self, filepath_base_ham, filepath_base_spam,verbose=1, testing=0):
+    def __init__(self, filepath_base_ham, filepath_base_spam, verbose=1):
         self._filepath_base_ham = filepath_base_ham
         self._filepath_base_spam = filepath_base_spam
         self._verbose = verbose
 
     def crear_dataframe(self):
-        if(self._verbose):
-            self._mensaje_de_progreso_de_carga_de_lista_de_mensajes()
+        self._mensaje_de_progreso_de_carga_de_lista_de_mensajes()
         base_ham_file = open(self._filepath_base_ham)
         ham_txt = json.load(base_ham_file)
         base_ham_file.close()
@@ -23,4 +22,5 @@ class LoaderDeMensajesParaSpamFilter(object):
         return dataframe
 
     def _mensaje_de_progreso_de_carga_de_lista_de_mensajes(self):
-        print('----------- Cargando lista de mensajes (puede demorar unos minutos...) -----------')
+        if self._verbose:
+            print('----------- Cargando lista de mensajes (puede demorar unos minutos...) -----------')
