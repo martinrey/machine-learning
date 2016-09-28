@@ -46,7 +46,7 @@ class SpamFilter(object):
         analizador_de_mensajes.analizar_mensajes()
         nombres_de_atributos_utilizados = list(map(lambda atributo: atributo.nombre(),
                                                    self._lista_de_atributos_a_buscar))
-        valores = self._dataframe[nombres_de_atributos_utilizados].values
+        valores = dataframe[nombres_de_atributos_utilizados].values
         return valores
 
     def predecir(self, lista_mensajes, indice_de_clasificador=0):

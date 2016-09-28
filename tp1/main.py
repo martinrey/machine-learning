@@ -63,8 +63,9 @@ def main():
     if len(sys.argv) <= 2:
         print_options()
         sys.exit()
-    argv = sys.argv[3:]
+    argv = sys.argv[1:]
 
+    print(argv)
     try:
         opts, args = getopt.getopt(argv, "hc:i:o:t:m:a:", ["ifolder=", "ofolder="])
     except getopt.GetoptError:
@@ -151,12 +152,11 @@ def lista_de_atributos():
     ]
 
 
-def final_build(numero_de_clasificador, input_folder=CARPETA_DEFAULT_INPUT, output_folder=CARPETA_DEFAULT_OUTPUT,
-                testing_folder=CARPETA_DEFAULT_TESTING, filepath_de_modelo_a_utlizar=None, ya_clasificado=False):
+def final_build(numero_de_clasificador, input_folder, output_folder,testing_folder, filepath_de_modelo_a_utlizar, ya_clasificado):
     clasificador = CLASIFICADORES_POR_NUMERO[numero_de_clasificador]
     lista_de_atributos_a_buscar = lista_de_atributos()
-    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter(input_folder + 'ham_dev_test.json',
-                                                                         input_folder + 'spam_dev_test.json', verbose=0)
+    loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter(input_folder + 'ham_dev_entrenamiento.json',
+                                                                         input_folder + 'spam_dev_entrenamiento.json', verbose=0)
     dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
     spam_filter = SpamFilter(dataframe, [clasificador], lista_de_atributos_a_buscar, utilizar_cache=False)
 
@@ -166,9 +166,12 @@ def final_build(numero_de_clasificador, input_folder=CARPETA_DEFAULT_INPUT, outp
         spam_filter.entrenar()
         spam_filter.guardar_modelo(output_folder, numero_de_clasificador=numero_de_clasificador)
 
-    dataframe, lista_mensajes = preparar_archivos_contra_cuales_testear(spam_filter, testing_folder)
+
+    loader_de_mensajes_para_testing = LoaderDeMensajesParaSpamFilter(testing_folder + 'ham_dev_test.json', testing_folder + 'spam_dev_test.json', verbose=0)
+    dataframe_test = loader_de_mensajes_para_testing.crear_dataframe()
+    lista_mensajes = spam_filter.valores(dataframe_test)
     if ya_clasificado:
-        clasificaciones = dataframe['class']
+        clasificaciones = dataframe_test['class']
         print("Score: %s" % spam_filter.score(lista_mensajes, clasificaciones))
     else:
         prediccion = spam_filter.predecir(lista_mensajes)
@@ -181,8 +184,8 @@ def devolver_lista_de_clasificaciones(prediccion):
 
 
 def preparar_archivos_contra_cuales_testear(spam_filter, testing_folder):
-    loader_de_mensajes_para_testing = LoaderDeMensajesParaSpamFilter(testing_folder + 'ham_dev_entrenamiento.json',
-                                                                     testing_folder + 'spam_dev_entrenamiento.json',
+    loader_de_mensajes_para_testing = LoaderDeMensajesParaSpamFilter(testing_folder + 'ham_dev_test.json',
+                                                                     testing_folder + 'spam_dev_test.json',
                                                                      verbose=0)
     dataframe = loader_de_mensajes_para_testing.crear_dataframe()
     lista_mensajes = spam_filter.valores(dataframe)
