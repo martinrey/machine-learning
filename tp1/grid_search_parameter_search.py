@@ -1,10 +1,10 @@
 def grid_search_params_for_decision_tree_classifier():
-    grid_param = {"max_depth": [1, 3, 5, 10, 15, 50, 100], "min_samples_split": [1, 3, 5, 10, 15],}
+    grid_param = {"max_depth": [1, 3, 5, 10, 15, 50, 100], "min_samples_split": [1, 3, 5, 10, 15], }
     return grid_param
 
 
 def grid_search_params_for_multinomial_nb():
-    grid_param = {"alpha": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.8, 0.9, 1]}
+    grid_param = {"alpha": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]}
     return grid_param
 
 

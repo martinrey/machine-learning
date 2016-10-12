@@ -4,7 +4,6 @@ import sys
 
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.grid_search import GridSearchCV
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
@@ -17,7 +16,7 @@ from spam_filter import SpamFilter
 
 # VARIABLES DEL ENTORNO DEL PROGRAMA
 
-TESTING_BUILD = False
+TESTING_BUILD = True
 CARPETA_DEFAULT_INPUT = 'datos/'
 CARPETA_DEFAULT_OUTPUT = 'trained/'
 CARPETA_DEFAULT_TESTING = 'datos/'
@@ -29,7 +28,6 @@ CLASIFICADORES_POR_NUMERO = {
     3: Pipeline([('pca', PCA(n_components=70)), ('clasificador', SVC(kernel='linear'))]),
     4: RandomForestClassifier(n_estimators=100, max_depth=None, max_features=10),
 }
-
 
 
 def print_options():
@@ -65,7 +63,6 @@ def main():
         sys.exit()
     argv = sys.argv[1:]
 
-    print(argv)
     try:
         opts, args = getopt.getopt(argv, "hc:i:o:t:m:a:", ["ifolder=", "ofolder="])
     except getopt.GetoptError:
@@ -152,11 +149,13 @@ def lista_de_atributos():
     ]
 
 
-def final_build(numero_de_clasificador, input_folder, output_folder,testing_folder, filepath_de_modelo_a_utlizar, ya_clasificado):
+def final_build(numero_de_clasificador, input_folder, output_folder, testing_folder, filepath_de_modelo_a_utlizar,
+                ya_clasificado):
     clasificador = CLASIFICADORES_POR_NUMERO[numero_de_clasificador]
     lista_de_atributos_a_buscar = lista_de_atributos()
     loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter(input_folder + 'ham_dev_entrenamiento.json',
-                                                                         input_folder + 'spam_dev_entrenamiento.json', verbose=0)
+                                                                         input_folder + 'spam_dev_entrenamiento.json',
+                                                                         verbose=0)
     dataframe = loader_de_mensajes_para_spam_filter.crear_dataframe()
     spam_filter = SpamFilter(dataframe, [clasificador], lista_de_atributos_a_buscar, utilizar_cache=False)
 
@@ -166,8 +165,8 @@ def final_build(numero_de_clasificador, input_folder, output_folder,testing_fold
         spam_filter.entrenar()
         spam_filter.guardar_modelo(output_folder, numero_de_clasificador=numero_de_clasificador)
 
-
-    loader_de_mensajes_para_testing = LoaderDeMensajesParaSpamFilter(testing_folder + 'ham_dev_test.json', testing_folder + 'spam_dev_test.json', verbose=0)
+    loader_de_mensajes_para_testing = LoaderDeMensajesParaSpamFilter(testing_folder + 'ham_dev_test.json',
+                                                                     testing_folder + 'spam_dev_test.json', verbose=0)
     dataframe_test = loader_de_mensajes_para_testing.crear_dataframe()
     lista_mensajes = spam_filter.valores(dataframe_test)
     if ya_clasificado:
@@ -193,29 +192,29 @@ def preparar_archivos_contra_cuales_testear(spam_filter, testing_folder):
 
 
 def development_testing():
-    # clasificadores = [
-    #     GridSearchCV(DecisionTreeClassifier(), param_grid=test_DecisionTreeClassifier(),cv=10),
-    #     GridSearchCV(MultinomialNB(), param_grid=test_MultinomialNB()),
-    #     GridSearchCV(KNeighborsClassifier(), param_grid=test_KNeighborsClassifier()),
-    #     GridSearchCV(SVC(), param_grid=test_SVC()),
-    #     GridSearchCV(RandomForestClassifier(), param_grid=test_RandomForestClassifier()),
-    # ]
+    clasificadores = [
+        # GridSearchCV(DecisionTreeClassifier(), param_grid=grid_search_params_for_decision_tree_classifier(), verbose=9999, cv=10),
+        # GridSearchCV(MultinomialNB(), param_grid=grid_search_params_for_multinomial_nb(), verbose=9999),
+        # GridSearchCV(KNeighborsClassifier(), param_grid=grid_search_params_for_k_neighbors_classifier(), verbose=9999),
+        # GridSearchCV(SVC(), param_grid=test_SVC()),
+        # GridSearchCV(RandomForestClassifier(), param_grid=grid_search_params_for_random_forest_classifier(), verbose=9999),
+    ]
     # uso de pca para reducir dimencionalidad y mejorar resultados
 
-    clasificadores = [
-        DecisionTreeClassifier(max_depth=50, min_samples_split=1),
-        MultinomialNB(alpha=0.1),
-        KNeighborsClassifier(n_neighbors=1, weights='uniform'),
-        # SVC(),
-        RandomForestClassifier(n_estimators=100, max_depth=None, max_features=10),
-    ]
-    pipelined_class = []
-    pca = PCA(n_components=2)
-    for clasificador in clasificadores:
-        pipe = [('pca', pca), ('clasificador', clasificador)]
-        pipelined_class.append(GridSearchCV(Pipeline(pipe), {'pca__n_components': [2, 5, 10, 40, 70]}))
-
-    clasificadores = pipelined_class
+    # clasificadores = [
+    #     DecisionTreeClassifier(max_depth=50, min_samples_split=1),
+    #     MultinomialNB(alpha=0.1),
+    #     KNeighborsClassifier(n_neighbors=1, weights='uniform'),
+    #     # SVC(),
+    #     RandomForestClassifier(n_estimators=100, max_depth=None, max_features=10),
+    # ]
+    # pipelined_class = []
+    # pca = PCA(n_components=2)
+    # for clasificador in clasificadores:
+    #     pipe = [('pca', pca), ('clasificador', clasificador)]
+    #     pipelined_class.append(GridSearchCV(Pipeline(pipe), {'pca__n_components': [2, 5, 10, 40, 70]}))
+    #
+    # clasificadores = pipelined_class
 
     loader_de_mensajes_para_spam_filter = LoaderDeMensajesParaSpamFilter('datos/ham_dev_entrenamiento.json',
                                                                          'datos/spam_dev_entrenamiento.json')
