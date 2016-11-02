@@ -43,7 +43,9 @@ class gridWorld():
 		res=[]
 		if row>0: res.append('up')
 		if row<self.height-1: res.append('down')
-		# TO DO ...
+		if col>0: res.append('left')
+		if col<self.width-1: res.append('right')
+		return res
 		
 		
 	""" Dado un estado y una accion devuelve un estado nuevo despues de
@@ -52,7 +54,9 @@ class gridWorld():
 		new_state= list(state)
 		if action=='up': new_state[0]-=1
 		if action=='down': new_state[0]+=1
-		# TO DO ...
+		if action== 'left': new_state[1] -=1
+		if action== 'right': new_state[1] +=1
+		return new_state
 		
 		
 		
@@ -75,15 +79,21 @@ class gridWorld():
 		
 		# Repito hasta que state sea terminal
 		while not self.isTerminal(state) :
-			
 			# 1) Listo las posibles acciones que puedo hacer teniendo
 			# encuenta el estado de donde estoy
-			
+			acciones_posibles = self.possibleActions(state)
 			# 2) Elijo la MEJOR accion dentro de las posibles
-			
+			#Franco: politica random, MEJORAR
+			accion_segun_politica = acciones_posibles[random.randint(0,len(acciones_posibles)-1)]
+			new_state = self.move(state,accion_segun_politica)
+
+			mejor_valor = -1000
+			for accion in self.possibleActions(new_state):
+				if mejor_valor < self.Q[new_state[0]][new_state[1]][accion]:
+					mejor_valor = self.Q[new_state[0]][new_state[1]][accion]
+					mejor_accion = accion
 			# 3) Calculo el nuevo valor de Q(s,a)
-			
-	
+			self.Q[state[0]][state[0]][accion] += self.alpha * (self.reward(state,accion_segun_politica) + (self.gamma * self.Q[new_state[0]][new_state[1]][mejor_accion]) - self.Q[state[0]][state[0]][accion])
 			# 4) Actualizo s
 			state = new_state
 	
