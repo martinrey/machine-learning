@@ -10,10 +10,8 @@ class Cuatro_en_linea():
         self.player1_turn = random.choice([True, False])
 
     def jugar_ficha(self,color,posicion):
-        print len(self.tablero[posicion])
         if posicion > -1 and posicion < self.width:
             if len(self.tablero[posicion]) < self.height:
-                print posicion
                 self.tablero[posicion].append(color)
             else:
                 print "error"
@@ -21,10 +19,17 @@ class Cuatro_en_linea():
             print "error"
 
     def jugador_gano(self,color):
-        for i in range(self.width):
-            for j in range(self.height):
-                #TODO
-                return False
+        for i in range(len(self.tablero)):
+            contador = 0
+            for j in range(len(self.tablero[i])):
+                if self.tablero[i][j] == color:
+                    contador += 1
+                else:
+                    contador = 0
+                if contador == 4:
+                    print "Gano " + color
+                    return True
+        #TODO: falta chequear si en una fila hay cuatro en linea y si en las diagonales hay
         return False
 
     def tablero_lleno(self):
@@ -40,18 +45,18 @@ class Cuatro_en_linea():
                 player, char, other_player = self.player2, 'O', self.player1
             space = player.move(self.tablero)
             self.jugar_ficha(char,space)
+            #for columna in self.tablero:
+            #    print columna
             if self.jugador_gano(char):
                 player.reward(1, self.tablero)
                 other_player.reward(-1, self.tablero)
-                break
+                return char
             if self.tablero_lleno(): # tie game
                 player.reward(0.5, self.tablero)
                 other_player.reward(0.5, self.tablero)
-                break
+                return ' '
             other_player.reward(0, self.tablero)
             self.player1_turn = not self.player1_turn
-            for columna in self.tablero:
-                print columna
 
 class Player(object):
     def __init__(self,height=8, width=8):
@@ -122,13 +127,17 @@ class QLearningPlayer(Player):
         maxqnew = max([self.getQ(result_state, a) for a in self.available_moves(state)])
         self.q[(state, action)] = prev + self.alpha * ((reward + self.gamma*maxqnew) - prev)
 
-
-
-
-
-
 if __name__ == "__main__":
+    resultado_X = 0
+    resultado_O = 0
     p1 = QLearningPlayer()
-    p2 = QLearningPlayer()
-    t = Cuatro_en_linea(p1, p2)
-    t.jugar()
+    p2 = Player()
+    for i in range(1000):
+        t = Cuatro_en_linea(p1, p2)
+        resutlado = t.jugar()
+        if resutlado == 'X':
+            resultado_X += 1
+        if resutlado == 'O':
+            resultado_O += 1
+    print "Cantidad De Veces que gano Qlerner: " + str(resultado_X)
+    print "Cantidad De Veces que gano Random: " + str(resultado_O)
