@@ -19,6 +19,7 @@ class Cuatro_en_linea():
             print "error"
 
     def jugador_gano(self,color):
+        #chekeo vertical
         for i in range(len(self.tablero)):
             contador = 0
             for j in range(len(self.tablero[i])):
@@ -29,7 +30,22 @@ class Cuatro_en_linea():
                 if contador == 4:
                     print "Gano " + color
                     return True
-        #TODO: falta chequear si en una fila hay cuatro en linea y si en las diagonales hay
+        #chekeo vertical
+        for i in range(self.height):
+            contador = 0
+            for j in range(self.width):
+                try:
+                    if self.tablero[i][j] == color:
+                        contador += 1
+                    else:
+                        contador = 0
+                except IndexError:
+                    contador = 0
+                if contador == 4:
+                    print "Gano " + color
+                    return True
+
+
         return False
 
     def tablero_lleno(self):
@@ -130,9 +146,9 @@ class QLearningPlayer(Player):
 if __name__ == "__main__":
     resultado_X = 0
     resultado_O = 0
-    p1 = QLearningPlayer()
+    p1 = QLearningPlayer(epsilon=0.01)
     p2 = Player()
-    for i in range(1000):
+    for i in range(10000):
         t = Cuatro_en_linea(p1, p2)
         resutlado = t.jugar()
         if resutlado == 'X':
