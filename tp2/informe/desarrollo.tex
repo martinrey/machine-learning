@@ -1,2 +1,45 @@
 \subsection{Modelado}
-Comenzamos modelando
+El juego en si consistirá en una lista de listas donde cada lista representará una columna del tablero. En cada turno un jugador elejirá una columna numerada del 0 al n, siendo n el numero de columnas totales y el juego se encargará. Ambos jugadores contarán en el momento de la elección con el estado actual del tablero.
+
+Luego de cada jugada, el juego chequará si el jugador ganó o si ya no hay mas movimientos posibles, terminando el juego e informando que jugador gano o si fue empate.
+
+El pseudocodigo del juego será, entonces el siguiente:
+
+\begin{algorithm}[h!]
+\begin{algorithmic}[1]\parskip=1mm
+ \caption{jugar()}
+ \STATE{While True}
+ \STATE{\quad columna = player.move(tablero)}
+ \STATE{\quad jugar\_ficha(columna, tablero)}
+ \STATE{\quad if jugador\_gano(tablero)}
+ \STATE{\quad\quad return player}
+ \STATE{\quad if tablero\_lleno(tablero)}
+ \STATE{\quad\quad return empate}
+ \STATE{\quad player = otro\_jugador(player)}
+\end{algorithmic}
+\end{algorithm}
+
+Como ya adelantamos en la introducción, es necesario definir en que etapa del algoritmo se le asignará la recompensa al algoritmo de q-learning. Una opción bastante sencilla e intuitiva es la de asignar recompensas en el momento en que algun jugador gana la partida. Por ejemplo al ganar la partida uno de los jugadores, se le asigna una recompensa de $1$ a el y una recompensa de $-1$ al contrincante. Siguiendo con el lineamiento anterior, tambien sería posible asignarles recompensas en el momento en que se empata, por ejemplo, asignandoles a ambos jugadores una recompensa de $0.5$
+
+En caso de que no se haya llegado a un estado final, una posible propuesta es asignarle al otro jugador una recompenza por ejemplo de 0.
+
+El pseudocodigo entonces, pasaría a verse de la siguiente manera:
+
+\begin{algorithm}[h!]
+\begin{algorithmic}[1]\parskip=1mm
+ \caption{jugar()}
+ \STATE{While True}
+ \STATE{\quad columna = player.move(tablero)}
+ \STATE{\quad jugar\_ficha(columna, tablero)}
+ \STATE{\quad if jugador\_gano(tablero)}
+ \STATE{\quad\quad player.recompensa(1)}
+ \STATE{\quad\quad otro\_jugador(player).recompensa(-1)}
+ \STATE{\quad\quad return player}
+ \STATE{\quad if tablero\_lleno(tablero)}
+ \STATE{\quad\quad player.recompensa(0.5)}
+ \STATE{\quad\quad otro\_jugador(player).recompensa(0.5)}
+ \STATE{\quad\quad return empate}
+ \STATE{\quad otro\_jugador(player).recompensa(0)}
+ \STATE{\quad player = otro\_jugador(player)}
+\end{algorithmic}
+\end{algorithm}
