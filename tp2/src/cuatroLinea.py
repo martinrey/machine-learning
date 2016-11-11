@@ -1,4 +1,5 @@
 import random
+import math
 
 class Cuatro_en_linea():
     def __init__(self, jugador1, jugador2,width=8, height=8):
@@ -94,15 +95,16 @@ class Player(object):
 
 
 class QLearningPlayer(Player):
-    def __init__(self,height=8, width=8, epsilon=0.2, alpha=0.3, gamma=0.9):
+    def __init__(self,estrategia,height=8, width=8, alpha=0.3, gamma=0.9):
         self.breed = "Qlearner"
         self.harm_humans = False
         self.q = {} # (state, action) keys: Q values
-        self.epsilon = epsilon # e-greedy chance of random exploration
+        #self.epsilon = epsilon # e-greedy chance of random exploration
         self.alpha = alpha # learning rate
         self.gamma = gamma # discount factor for future rewards
         self.height = height
         self.width = width
+        self.estrategia = estrategia
 
     def start_game(self, char):
         self.last_board = (' ',)*9
@@ -117,20 +119,8 @@ class QLearningPlayer(Player):
     def move(self, board):
         self.last_board = tuple(tuple(x) for x in board)
         actions = self.available_moves(board)
-
-        if random.random() < self.epsilon: # explore!
-            self.last_move = random.choice(actions)
-            return self.last_move
         qs = [self.getQ(self.last_board, a) for a in actions]
-        maxQ = max(qs)
-
-        if qs.count(maxQ) > 1:
-            # more than 1 best option; choose among them randomly
-            best_options = [i for i in range(len(actions)) if qs[i] == maxQ]
-            i = random.choice(best_options)
-        else:
-            i = qs.index(maxQ)
-
+        i = self.estrategia.elegir_accion(qs)
         self.last_move = actions[i]
         return actions[i]
 
@@ -143,10 +133,67 @@ class QLearningPlayer(Player):
         maxqnew = max([self.getQ(result_state, a) for a in self.available_moves(state)])
         self.q[(state, action)] = prev + self.alpha * ((reward + self.gamma*maxqnew) - prev)
 
+
+class estrategia_greedy():
+    def __init__(self,epsilon=0.1):
+        self.epsilon = epsilon
+
+    def elegir_accion(self, qs):
+        if random.random() < self.epsilon: # explore!
+            return random.choice(range(len(qs)))
+        maxQ = max(qs)
+        if qs.count(maxQ) > 1:
+            # more than 1 best option; choose among them randomly
+            best_options = [i for i in range(len(qs)) if qs[i] == maxQ]
+            i = random.choice(best_options)
+        else:
+            i = qs.index(maxQ)
+        return i
+
+class estrategia_e_first():
+    def __init__(self,epsilon=0.1,cantidad_trials=10000):
+        self.epsilon = epsilon
+        self.cantidad_trials = cantidad_trials
+        self.contador = 0
+
+    def elegir_accion(self, qs):
+        if self.contador < (self.epsilon*self.cantidad_trials)/100: # explore!
+            self.contador += 1
+            return random.choice(range(len(qs)))
+        maxQ = max(qs)
+        if qs.count(maxQ) > 1:
+            # more than 1 best option; choose among them randomly
+            best_options = [i for i in range(len(qs)) if qs[i] == maxQ]
+            i = random.choice(best_options)
+        else:
+            i = qs.index(maxQ)
+        return i
+
+class estrategia_softmax():
+    def __init__(self,temperatura_inicial=0.1):
+        self.temperatura_inicial = temperatura_inicial
+        self.contador = 1
+
+    def elegir_accion(self, qs):
+        #levemente turbio
+        #calculo la temperatura
+        self.contador += 1
+        temperatura = self.temperatura_inicial / math.log(self.contador)
+        #calculo la probabilidad de tomar cada accion
+        probabilidades = [math.exp(qs[i]/(temperatura*1.0)) for i in range(len(qs))]
+        probabilidad_total = sum(probabilidades)
+        probabilidades = [probabilidad/probabilidad_total for probabilidad in probabilidades]
+        r = random.random()
+        index = 0
+        while(r >= 0 and index < len(probabilidades)):
+            r -= probabilidades[index]
+            index += 1
+        return index -1
+
 if __name__ == "__main__":
     resultado_X = 0
     resultado_O = 0
-    p1 = QLearningPlayer(epsilon=0.01)
+    p1 = QLearningPlayer(estrategia_softmax())
     p2 = Player()
     for i in range(10000):
         t = Cuatro_en_linea(p1, p2)
@@ -157,3 +204,4 @@ if __name__ == "__main__":
             resultado_O += 1
     print "Cantidad De Veces que gano Qlerner: " + str(resultado_X)
     print "Cantidad De Veces que gano Random: " + str(resultado_O)
+
