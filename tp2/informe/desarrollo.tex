@@ -43,3 +43,30 @@ El pseudocodigo entonces, pasaría a verse de la siguiente manera:
  \STATE{\quad player = otro\_jugador(player)}
 \end{algorithmic}
 \end{algorithm}
+
+En la siguiente sección experimentaremos con distintos algoritmos para elejir el movimiento tomado por el jugador y ver como esto impacta en el parendisaje.
+
+\subsection{Experimentación Con Distintas Estrategias de Movimiento}
+
+En esta sección plantearemos distintas estrategias que utilizará nuestro jugador al momento de elegir si explorar nuevas posibilidades o utilizar el mejor camino conocido.
+
+En particular plantearemos estas tres estrategias:
+
+%capaz no usar itemize?
+
+\begin{itemize}
+\item Estrategia Greedy: toma un camino random con probabilidad $\epsilon\%$ y en caso contrario utilice el mejor brazo conocido.
+\item Estrategia $\epsilon$-first: toma un camino random en las primeras $\epsilon$ iteraciones y luego toma el mejor camino conocido.
+\item Estrategia Softmax: basada en una función probabilistica que desarrollaremos a continuación.
+\end{itemize}
+
+La estrategia Softmax se basa en darle probabilidades distintas a cada acción posible dependiendo de la recomensa esperada de cada una de ellas.
+
+En particular la probabilidad de cada una de las acciones vendrá dada por:
+
+%imagen1.svg
+
+ La variable $\tau$ se denomina parametro de temperatura, para temperaturas cercanas a infinito todas las acciones tienen aproximadamente la misma probabilidad de ser elegidas, mientras que para temperaturas bajas (cercanas a cero) la probabilidad de la accion de mayor recompensa tenderá a $1$.
+
+En particular nuestra estrategia consistirá en comenzar con una temperatura alta para favorecer la exploración e ir gradualemente disminuyendola para favorecer mas a aquellas con mayor recopensa. Faltará definir de manera experimental cual será el valor inicial de $\tau$ y de que manera reduciremos su valor (algunas posiblidades son de manera linea, logaritmica, etc).
+
