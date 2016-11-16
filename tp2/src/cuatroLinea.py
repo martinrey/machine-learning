@@ -26,19 +26,16 @@ class Cuatro_en_linea():
             for j in range(self.width):
                 try:
                     if all(self.tablero[i][j+k] == color for k in range(4)):
-                        print color
                         return True
                 except IndexError:
                     pass
                 try:
                     if all(self.tablero[i+k][j] == color for k in range(4)):
-                        print color
                         return True
                 except IndexError:
                     pass
                 try:
                     if all(self.tablero[i+k][j+k] == color for k in range(4)):
-                        print color
                         return True
                 except IndexError:
                     pass
@@ -197,18 +194,37 @@ class estrategia_softmax():
             index += 1
         return index -1
 
+def print_promedios(resultados):
+    contador = 0
+    suma = 0
+    VELOCIDAD_DE_SAMPLEO = 40
+    limite = len(resultados) // VELOCIDAD_DE_SAMPLEO
+    for resultado in resultados:
+        contador += 1
+        suma += resultado
+        if contador == limite:
+            print suma
+            suma = 0
+            contador = 0
+
+
+
 if __name__ == "__main__":
     resultado_X = 0
     resultado_O = 0
-    p1 = QLearningPlayer(estrategia_softmax())
+    p1 = QLearningPlayer(estrategia_greedy())
     p2 = Player()
+    resultados = []
     for i in range(10000):
         t = Cuatro_en_linea(p1, p2)
         resultado = t.jugar()
         if resultado == '1':
+            resultados.append(1)
             resultado_X += 1
         if resultado == '0':
+            resultados.append(0)
             resultado_O += 1
-    print "Cantidad De Veces que gano Qlearner: " + str(resultado_X)
-    print "Cantidad De Veces que gano Random: " + str(resultado_O)
+    print_promedios(resultados)
+    #print "Cantidad De Veces que gano Qlearner: " + str(resultado_X)
+    #print "Cantidad De Veces que gano Random: " + str(resultado_O)
 
