@@ -9,6 +9,8 @@ class Cuatro_en_linea():
         self.player1 = jugador1
         self.player2 = jugador2
         self.player1_turn = random.choice([True, False])
+        self.pieza_player_1 = '1'
+        self.pieza_player_2 = '0'
 
     def jugar_ficha(self,color,posicion):
         if posicion > -1 and posicion < self.width:
@@ -20,46 +22,51 @@ class Cuatro_en_linea():
             print "error"
 
     def jugador_gano(self,color):
-        #chekeo vertical
         for i in range(len(self.tablero)):
-            contador = 0
-            for j in range(len(self.tablero[i])):
-                if self.tablero[i][j] == color:
-                    contador += 1
-                else:
-                    contador = 0
-                if contador == 4:
-                    print "Gano " + color
-                    return True
-        #chekeo vertical
-        for i in range(self.height):
-            contador = 0
             for j in range(self.width):
                 try:
-                    if self.tablero[i][j] == color:
-                        contador += 1
-                    else:
-                        contador = 0
+                    if all(self.tablero[i][j+k] == color for k in range(4)):
+                        print color
+                        return True
                 except IndexError:
-                    contador = 0
-                if contador == 4:
-                    print "Gano " + color
-                    return True
-
-
+                    pass
+                try:
+                    if all(self.tablero[i+k][j] == color for k in range(4)):
+                        print color
+                        return True
+                except IndexError:
+                    pass
+                try:
+                    if all(self.tablero[i+k][j+k] == color for k in range(4)):
+                        print color
+                        return True
+                except IndexError:
+                    pass
         return False
+
+    def imprimir_tablero(self):
+        for i in range(self.height-1, -1, -1):
+            colores = []
+            for j in range(len(self.tablero)):
+                try:
+                    color = self.tablero[j][i]
+                except IndexError:
+                    color = '-'
+
+                colores.append(color)
+            print "".join(colores)
 
     def tablero_lleno(self):
         return not any([len(columna) < self.height for columna in self.tablero])
 
     def jugar(self):
-        self.player1.start_game('X')
-        self.player2.start_game('O')
+        self.player1.start_game(self.pieza_player_1)
+        self.player2.start_game(self.pieza_player_2)
         while True:
             if self.player1_turn:
-                player, char, other_player = self.player1, 'X', self.player2
+                player, char, other_player = self.player1, self.pieza_player_1, self.player2
             else:
-                player, char, other_player = self.player2, 'O', self.player1
+                player, char, other_player = self.player2, self.pieza_player_2, self.player1
             space = player.move(self.tablero)
             self.jugar_ficha(char,space)
             #for columna in self.tablero:
@@ -185,7 +192,7 @@ class estrategia_softmax():
         probabilidades = [probabilidad/probabilidad_total for probabilidad in probabilidades]
         r = random.random()
         index = 0
-        while(r >= 0 and index < len(probabilidades)):
+        while r >= 0 and index < len(probabilidades):
             r -= probabilidades[index]
             index += 1
         return index -1
@@ -197,11 +204,11 @@ if __name__ == "__main__":
     p2 = Player()
     for i in range(10000):
         t = Cuatro_en_linea(p1, p2)
-        resutlado = t.jugar()
-        if resutlado == 'X':
+        resultado = t.jugar()
+        if resultado == '1':
             resultado_X += 1
-        if resutlado == 'O':
+        if resultado == '0':
             resultado_O += 1
-    print "Cantidad De Veces que gano Qlerner: " + str(resultado_X)
+    print "Cantidad De Veces que gano Qlearner: " + str(resultado_X)
     print "Cantidad De Veces que gano Random: " + str(resultado_O)
 
