@@ -1,4 +1,8 @@
 \subsection{Modelado}
+
+
+\subsection{Modelado Del Juego}
+
 El juego en si consistirá en una lista de listas donde cada lista representará una columna del tablero. En cada turno un jugador elejirá una columna numerada del 0 al n, siendo n el numero de columnas totales y el juego se encargará. Ambos jugadores contarán en el momento de la elección con el estado actual del tablero.
 
 Luego de cada jugada, el juego chequará si el jugador ganó o si ya no hay mas movimientos posibles, terminando el juego e informando que jugador gano o si fue empate.
@@ -44,9 +48,41 @@ El pseudocodigo entonces, pasaría a verse de la siguiente manera:
 \end{algorithmic}
 \end{algorithm}
 
-En la siguiente sección experimentaremos con distintos algoritmos para elejir el movimiento tomado por el jugador y ver como esto impacta en el parendisaje.
 
-\subsection{Experimentación Con Distintas Estrategias de Movimiento}
+\subsection{Modelado De Jugadores}
+
+Un jugador estará compuesto por dos metodos basicos, uno que llamaremos $move()$ que, dado un estado del tablero devuleve una acción valida (tirar ficha en la primera columna, en la segunda, etc) y una función $reward()$ que nos dirá en que estado quedo el juego luego de movernos y de que el oponente moviera y una recompensa que utilizaremos para actualizar la matriz $Q$ en caso de que el jugador lo requiera.
+
+En particular, para la clase jugador que implemente q-learning el algoritmo para decidir que acción realizar vendrá dado de la siguiente manera:
+
+\begin{algorithm}[h!]
+\begin{algorithmic}[1]\parskip=1mm
+ \caption{move(tablero)}
+ \STATE{acciones\_validas = elegir\_acciones\_validas(tablero)}
+ \STATE{Para cada acción en acciones\_validas}
+ \STATE{\quad obtener q para accion}
+ \STATE{\quad guardarlo en lista de qs\_validos}
+ \STATE{accion\_elegida = elegir\_acción(acciones\_validas,qs\_validos)}
+ \STATE{retornar accion\_elegida}
+\end{algorithmic}
+\end{algorithm}
+
+Y la función learn, que basicamente consiste en adaptar la función de aprendisaje vista en la teorica:
+
+\begin{algorithm}[h!]
+\begin{algorithmic}[1]\parskip=1mm
+ \caption{learn(tablero,recomensa)}
+ \STATE{prev\_q = getQ(estado\_previo, accion\_elegida)}
+ \STATE{maxqnew = tomar maximo q de tomar una acción en el tablero resultante}
+ \STATE{q[(estado\_previo, accion\_elegida)] = prev + $\alpha$ * ((reward + $\gamma$*maxqnew) - prev)}
+\end{algorithmic}
+\end{algorithm}
+
+Aqui quedan por definir varios parametros, entre ellos $\alpha$, $\gamma$ y los valores iniciales para la matriz $Q$. En primera instancia decidimos tomar valores que concideramos apropiados de a cuerdo a datos empiricos de la implementación y que concideramos razonables. Tomaremos $\alpha=0.4 $, $\gamma=0.9$ y todas los valores de Q iniciarán con $1$.
+
+En la siguiente sección propondremos distintos algoritmos para elejir una acción tomado del jugador y teorizar como estas impactan en el aprendisaje.
+
+\subsection{Planteo De Distintas Estrategias de Movimiento}
 
 En esta sección plantearemos distintas estrategias que utilizará nuestro jugador al momento de elegir si explorar nuevas posibilidades o utilizar el mejor camino conocido.
 
@@ -70,3 +106,42 @@ En particular la probabilidad de cada una de las acciones vendrá dada por:
 
 En particular nuestra estrategia consistirá en comenzar con una temperatura alta para favorecer la exploración e ir gradualemente disminuyendola para favorecer mas a aquellas con mayor recopensa. Faltará definir de manera experimental cual será el valor inicial de $\tau$ y de que manera reduciremos su valor (algunas posiblidades son de manera linea, logaritmica, etc).
 
+\subsection{Analisis Espacio De Estados}
+
+%TODO
+
+\subsection{Analisis De Exploración}
+
+%TODO
+
+\section{Experimentación}
+
+\section{Estrategias vs Jugador Random}
+
+Como primera instancia en la etapa de experimentación, haremos competir a un jugador q-learner contra un jugador que elige entre los posibles movimientos con probabilidad uniforme. Utilizaremos las tres estrategias enunciadas previamente para ver como se comporta cada una. 
+
+La metodología utilizada para observar como evoluciona el algoritmo de q-learning será la de hacer jugar a ambos jugadores $10000$ veces randomizando cual es el que comienza primero. Luego tomaremos estos resultados y cada $200$ juegos, graficaremos cuantas veces ganó el algoritmo q-learning. 
+
+Para la estrategia greedy, eligiendo un $\epsilon=0.1$ obtuvimos los siguientes resultados:
+
+\includegraphics[scale=0.5]{testing/greedy.png}
+
+%concluciones
+
+Para la estrategia $\epsilon$-first eligiendo un $\epsilon=10\%$, y los resultados fueron los siguientes:
+
+\includegraphics[scale=0.5]{testing/ef.png}
+
+Puede verse como en el primer $10\%$ de las iteraciones el algorimo gana la mitad de las veces y prierde la otra mitad, lo que era de esperarse para una politica completamente random.
+
+Con la tercera politica Soft-Max, decidimos utilizar una temperatura incial igual a $1$ y una función de calor que decrese de manera logaritmica con cada iteración:
+
+\includegraphics[scale=0.5]{testing/softmax.png}
+
+%concluciones
+
+\subsection{Performance de dos q-learners compitiendo}
+
+
+
+\subsection{Performance al cambiar la inicialización de Q}

@@ -39,6 +39,11 @@ class Cuatro_en_linea():
                         return True
                 except IndexError:
                     pass
+                try:
+                    if all(self.tablero[i+k][j-k] == color for k in range(4)):
+                        return True
+                except IndexError:
+                    pass
         return False
 
     def imprimir_tablero(self):
@@ -66,8 +71,6 @@ class Cuatro_en_linea():
                 player, char, other_player = self.player2, self.pieza_player_2, self.player1
             space = player.move(self.tablero)
             self.jugar_ficha(char,space)
-            #for columna in self.tablero:
-            #    print columna
             if self.jugador_gano(char):
                 player.reward(1, self.tablero)
                 other_player.reward(-1, self.tablero)
@@ -99,7 +102,7 @@ class Player(object):
 
 
 class QLearningPlayer(Player):
-    def __init__(self,estrategia,height=8, width=8, alpha=0.3, gamma=0.9):
+    def __init__(self,estrategia,height=8, width=8, alpha=0.4, gamma=0.9):
         self.breed = "Qlearner"
         self.harm_humans = False
         self.q = {} # (state, action) keys: Q values
@@ -174,14 +177,14 @@ class estrategia_e_first():
         return i
 
 class estrategia_softmax():
-    def __init__(self,temperatura_inicial=0.1):
+    def __init__(self,temperatura_inicial=1):
         self.temperatura_inicial = temperatura_inicial
         self.contador = 1
 
     def elegir_accion(self, qs):
         #levemente turbio
         #calculo la temperatura
-        self.contador += 1
+        self.contador += 0.1
         temperatura = self.temperatura_inicial / math.log(self.contador)
         #calculo la probabilidad de tomar cada accion
         probabilidades = [math.exp(qs[i]/(temperatura*1.0)) for i in range(len(qs))]
@@ -193,6 +196,10 @@ class estrategia_softmax():
             r -= probabilidades[index]
             index += 1
         return index -1
+
+#TODO: Contextual-Epsilon-greedy strategy
+#Adversarial Bandit
+
 
 def print_promedios(resultados):
     contador = 0
@@ -213,9 +220,9 @@ if __name__ == "__main__":
     resultado_X = 0
     resultado_O = 0
     p1 = QLearningPlayer(estrategia_greedy())
-    p2 = Player()
+    p2 = QLearningPlayer(estrategia_greedy())
     resultados = []
-    for i in range(10000):
+    for i in range(50000):
         t = Cuatro_en_linea(p1, p2)
         resultado = t.jugar()
         if resultado == '1':
