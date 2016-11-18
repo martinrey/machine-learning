@@ -106,14 +106,19 @@ En particular la probabilidad de cada una de las acciones vendrá dada por:
 
 En particular nuestra estrategia consistirá en comenzar con una temperatura alta para favorecer la exploración e ir gradualemente disminuyendola para favorecer mas a aquellas con mayor recopensa. Faltará definir de manera experimental cual será el valor inicial de $\tau$ y de que manera reduciremos su valor (algunas posiblidades son de manera linea, logaritmica, etc).
 
+
+%Analisis De Exploración
+
 \subsection{Analisis Espacio De Estados}
 
-%TODO
+Segun el modelo planteado para la resolución del problema, la matriz Q tendrá como como columnas los diferentes estados en los que se puede encontrar el tablero y como filas las acciones que se pueden realizar sobre ese determinado tablero. Dado que la cantidad de estados diferentes en los que se puede encontrar el tablero tiene complegidad PSPACE y que la cantidad la acciones es acotada (a lo sumo m), podemos determinar que la complegidad espacial de nuestro algoritmo esta en PSPACE... not cool.
 
-\subsection{Analisis De Exploración}
+Si bien esto hace que la complegidad de explorar cada una de las posibilidades sea extremadamente costosa, consideramos que para la mayoría de los casos no es necesario concer todo el arbol sino los estados mas generales.
 
-%TODO
+%referencia http://www.tzi.de/~edelkamp/publications/conf/ki/EdelkampK08-1.pdf
 
+
+\pagebreak
 \section{Experimentación}
 
 \section{Estrategias vs Jugador Random}
