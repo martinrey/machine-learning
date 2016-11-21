@@ -1,8 +1,8 @@
-\subsection{Modelado}
+\section{Modelado}
 
 \subsection{Modelado Del Juego}
 
-El juego en si consistirá en una lista de listas donde cada lista representará una columna del tablero. En cada turno un jugador elegirá una columna numerada del 0 al n, siendo n el numero de columnas totales y el juego se encargará. Ambos jugadores contarán en el momento de la elección con el estado actual del tablero.
+La estructura de datos que utilizaremos para modelar este juego consistirá en una lista de listas donde cada una de ellas representará una columna del tablero. En cada turno, se le entregará el estado actual del tablero al jugador y este elegirá una columna numerada del $0$ al $n$ (siendo $n$ el numero de columnas totales) y elegirá donde colocar su ficha.
 
 Luego de cada jugada, el juego chequeará si el jugador ganó o si ya no hay mas movimientos posibles, terminando el juego e informando que jugador gano o si fue empate.
 
@@ -22,12 +22,12 @@ El pseudocódigo del juego será, entonces el siguiente:
 \end{algorithmic}
 \end{algorithm}
 
-Como ya adelantamos en la introducción, es necesario definir en que etapa del algoritmo se le asignará la recompensa al algoritmo de q-learning. Una opción bastante sencilla e intuitiva es la de asignar recompensas en el momento en que algún jugador gana la partida. Por ejemplo al ganar la partida uno de los jugadores, se le asigna una recompensa de $1$ a el y una recompensa de $-1$ al contrincante. Siguiendo con el lineamiento anterior, también sería posible asignarles recompensas en el momento en que se empata, por ejemplo, asignándoles a ambos jugadores una recompensa de $0.5$
+Como ya adelantamos en la introducción, es necesario definir en que etapa del algoritmo se le asignará la recompensa al algoritmo de q-learning. Una opción bastante sencilla e intuitiva es la de asignar recompensas en el momento en que algún jugador gana la partida. Por ejemplo al ganar la partida uno de los jugadores, se le asigna una recompensa de $1$ a el y una recompensa de $-1$ a su adversario. Siguiendo con el lineamiento anterior, también sería posible asignarles recompensas en el momento en que se empata, por ejemplo, asignándoles a ambos jugadores una recompensa de $0.5$.
 
-En caso de que no se haya llegado a un estado final, una posible propuesta es asignarle al otro jugador una recompensa por ejemplo de 0.
+En caso de que no se haya llegado a un estado final, una posible propuesta es asignarle otro jugador una recompensa por ejemplo de $0$.
 
 El pseudocódigo entonces, pasaría a verse de la siguiente manera:
-
+\pagebreak
 \begin{algorithm}[h!]
 \begin{algorithmic}[1]\parskip=1mm
  \caption{jugar()}
@@ -35,18 +35,19 @@ El pseudocódigo entonces, pasaría a verse de la siguiente manera:
  \STATE{\quad columna = player.move(tablero)}
  \STATE{\quad jugar\_ficha(columna, tablero)}
  \STATE{\quad if jugador\_gano(tablero)}
- \STATE{\quad\quad player.recompensa(1)}
- \STATE{\quad\quad otro\_jugador(player).recompensa(-1)}
+ \STATE{\quad\quad player.recompensa(1, tablero)}
+ \STATE{\quad\quad otro\_jugador(player).recompensa(-1, tablero)}
  \STATE{\quad\quad return player}
  \STATE{\quad if tablero\_lleno(tablero)}
- \STATE{\quad\quad player.recompensa(0.5)}
- \STATE{\quad\quad otro\_jugador(player).recompensa(0.5)}
+ \STATE{\quad\quad player.recompensa(0.5, tablero)}
+ \STATE{\quad\quad otro\_jugador(player).recompensa(0.5, tablero)}
  \STATE{\quad\quad return empate}
- \STATE{\quad otro\_jugador(player).recompensa(0)}
+ \STATE{\quad otro\_jugador(player).recompensa(0, tablero)}
  \STATE{\quad player = otro\_jugador(player)}
 \end{algorithmic}
 \end{algorithm}
 
+Utilizando este modelo, en el siguiente apartado pensaremos como modelar un jugador que utilice esta estructura para implementar un algoritmo de qlearning.
 
 \subsection{Modelado De Jugadores}
 
@@ -77,19 +78,23 @@ Y la función learn, que básicamente consiste en adaptar la función de aprendi
 \end{algorithmic}
 \end{algorithm}
 
-Aquí quedan por definir varios parámetros, entre ellos $\alpha$, $\gamma$ y los valores iniciales para la matriz $Q$. En primera instancia decidimos tomar valores que Consideramos apropiados de a cuerdo a datos empíricos de la implementación y que consideramos razonables. Tomaremos $\alpha=0.4 $, $\gamma=0.9$ y todas los valores de Q iniciarán con $1$ con el objetivo de alentar la exploración.
+Aquí quedan por definir varios parámetros, entre ellos $\alpha$, $\gamma$ y los valores iniciales para la matriz $Q$. En primera instancia decidimos tomar valores que consideramos apropiados de acuerdo a resultados empíricos que realizamos a priori y que consideramos razonables. Tomaremos $\alpha=0.4 $, $\gamma=0.9$ y todas los valores de Q iniciarán con $1$ con el objetivo de alentar la exploración.
 
-En la siguiente sección propondremos distintos algoritmos para elegir una acción tomado del jugador y teorizar como estas impactan en el aprendizaje.
+Ademas de la metodología descripta anteriormente se nos ocurrieron otras heuristicas interesantes, que por falta de tiempo o por ser simplemente malas, no indagamos en profundidad. Una de ellas consistía en utilizar el estado siguiente (aquel perteneciente al jugador rival para determinar el mejor movimiento). La idea basica era, para cada acción, tomo su q, transiciono por ese estado, invierto el tablero (las fichas rojas pasan a ser azules y las azules pasan a ser rojas) y le resto el mejor q de este otro estado. Pensamos que de esta manera estaríamos agregando inforamación util sobre potenciales buenas jugadas del contrincante a nuestra fase de decición, pero en la practica daba malos resultados.
 
-\subsection{Planteo De Distintas Estrategias de Movimiento}
+Otra heuristica interesante surgió de la siguiente idea: Cuando pierdo, no solo se que pierdo, sino que se que el otro ganó y no solo eso, tambien se \textit{como} gano. En base a eso una idea muy interesante para explorar era, al momento de resivir una recompensa realizar $learn(invertir(tablero), -recomensa)$ donde invertir funcionaría invirtiendo las fichas rojas por azules y bicebersa. Si bien implementamos esto, dado que los resultados obtenidos no variaron significativamente y que nos encontrabamos al final de la etapa de experimentación, los siguientes apartados no reflejan ni tienen en cuenta esta posible mejora.
 
-En esta sección plantearemos distintas estrategias que utilizará nuestro jugador al momento de elegir si explorar nuevas posibilidades o utilizar el mejor camino conocido.
+En la siguiente sección terminaremos de definir la función $elegir\_accion()$ basandonos en distintas heuristicas para resolver el problema del Multi-armed bandit.
 
-La primera estrategia que plantearemos es una estrategia greedy en donde el jugador tomara un camino random con probabilidad $\epsilon\%$ y en caso contrario utilice el mejor brazo conocido.
+\subsection{Estrategias de Movimiento}
 
-La segunda estrategia es conocida como $\epsilon$-first: en este caso el jugador toma un camino random en las primeras $\epsilon$ iteraciones y luego toma el mejor camino conocido.
+Aqui plantearemos distintas estrategias que utilizará nuestro jugador al momento de elegir si explorar nuevos caminos o utilizar el mejor conocido hasta el momento.
 
-Como ultima estrategia utilizaremos Softmax: basada en una función probabilística, la estrategia Softmax se basa en darle probabilidades distintas a cada acción posible dependiendo de la recompensa esperada de cada una de ellas.
+La primera heuristica que elegimos implementar es una estrategia greedy en donde el jugador tomara un camino random con probabilidad $\epsilon\%$ y en caso contrario utilice el mejor brazo conocido. Es claro que dependiendo de este valor $\epsilon\%$ nuestro algoritmo será mas propenso a explorar o a elegir el mejor camino posible.
+
+La segunda estrategia es conocida como $\epsilon$-first: en este caso el jugador toma un camino random en las primeras $\epsilon$ iteraciones y luego toma el mejor camino conocido. Esperamos que en estas $\epsilon\%$ iteraciones el jugador explore una gran cantidad de estados posibles, tras los cuales podrá decidir con mas confianza cual es el mejor camino a elegir.
+
+Como ultima heuristica utilizaremos una estrategia Softmax: basada en una función probabilística, la estrategia Softmax se basa en darle probabilidades distintas a cada acción posible dependiendo de la recompensa esperada de cada una de ellas.
 
 En particular la probabilidad de cada una de las acciones vendrá dada por:
 
@@ -97,7 +102,7 @@ $$P_t(a) = \frac{\exp(q_t(a)/\tau)}{\sum_{i=1}^n\exp(q_t(i)/\tau)}$$
 
 Donde $q_t(a)$ es el valor del valor esperado siguiendo la acción $a$ y la variable $\tau$ se denomina parámetro de temperatura, para temperaturas cercanas a infinito todas las acciones tienen aproximadamente la misma probabilidad de ser elegidas, mientras que para temperaturas bajas (cercanas a cero) la probabilidad de la acción de mayor recompensa tenderá a $1$.
 
-En particular nuestra estrategia consistirá en comenzar con una temperatura alta para favorecer la exploración e ir gradualmente disminuyéndola para favorecer mas a aquellas con mayor recompensa. Faltará definir de alguna manera cual será el valor inicial de $\tau$ y de que manera reduciremos su valor (algunas posibilidades son de manera linea, logarítmica, etc).
+En particular nuestra estrategia consistirá en comenzar con una temperatura alta para favorecer la exploración e ir gradualmente disminuyéndola para favorecer mas a aquellas con mayor recompensa. Faltará definir de alguna manera cual será el valor inicial de $\tau$ y de que manera reduciremos su valor (algunas posibilidades son de manera linea, logarítmica, etc). De esta manera esperamos que en situaciones donde todos los qs tengan valores similares, el jugador sea mas propenso a explorar nuevos caminos mientras que en situaciones criticas (estando cerca de un estado ganador) elija el camino con mayor recompensa.
 
 \subsection{Análisis Espacio De Estados}
 
