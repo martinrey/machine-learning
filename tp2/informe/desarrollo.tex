@@ -47,7 +47,7 @@ El pseudocódigo entonces, pasaría a verse de la siguiente manera:
 \end{algorithmic}
 \end{algorithm}
 
-Utilizando este modelo, en el siguiente apartado pensaremos como modelar un jugador que utilice esta estructura para implementar un algoritmo de qlearning.
+Utilizando este modelo, en el siguiente apartado pensaremos como modelar un jugador que utilice esta estructura para implementar un algoritmo de q-learning.
 
 \subsection{Modelado De Jugadores}
 
@@ -80,21 +80,21 @@ Y la función learn, que básicamente consiste en adaptar la función de aprendi
 
 Aquí quedan por definir varios parámetros, entre ellos $\alpha$, $\gamma$ y los valores iniciales para la matriz $Q$. En primera instancia decidimos tomar valores que consideramos apropiados de acuerdo a resultados empíricos que realizamos a priori y que consideramos razonables. Tomaremos $\alpha=0.4 $, $\gamma=0.9$ y todas los valores de Q iniciarán con $1$ con el objetivo de alentar la exploración.
 
-Ademas de la metodología descripta anteriormente se nos ocurrieron otras heuristicas interesantes, que por falta de tiempo o por ser simplemente malas, no indagamos en profundidad. Una de ellas consistía en utilizar el estado siguiente (aquel perteneciente al jugador rival para determinar el mejor movimiento). La idea basica era, para cada acción, tomo su q, transiciono por ese estado, invierto el tablero (las fichas rojas pasan a ser azules y las azules pasan a ser rojas) y le resto el mejor q de este otro estado. Pensamos que de esta manera estaríamos agregando inforamación util sobre potenciales buenas jugadas del contrincante a nuestra fase de decición, pero en la practica daba malos resultados.
+Además de la metodología descripta anteriormente se nos ocurrieron otras heurísticas interesantes, que por falta de tiempo o por ser simplemente malas, no indagamos en profundidad. Una de ellas consistía en utilizar el estado siguiente (aquel perteneciente al jugador rival para determinar el mejor movimiento). La idea básica era, para cada acción, tomo su q, realizo una transicion por ese estado, invierto el tablero (las fichas rojas pasan a ser azules y las azules pasan a ser rojas) y le resto el mejor q de este otro estado. Pensamos que de esta manera estaríamos agregando información útil sobre potenciales buenas jugadas del contrincante a nuestra fase de decisión, pero en la practica daba malos resultados.
 
-Otra heuristica interesante surgió de la siguiente idea: Cuando pierdo, no solo se que pierdo, sino que se que el otro ganó y no solo eso, tambien se \textit{como} gano. En base a eso una idea muy interesante para explorar era, al momento de resivir una recompensa realizar $learn(invertir(tablero), -recomensa)$ donde invertir funcionaría invirtiendo las fichas rojas por azules y bicebersa. Si bien implementamos esto, dado que los resultados obtenidos no variaron significativamente y que nos encontrabamos al final de la etapa de experimentación, los siguientes apartados no reflejan ni tienen en cuenta esta posible mejora.
+Otra heurística interesante surgió de la siguiente idea: Cuando pierdo, no solo se que pierdo, sino que se que el otro ganó y no solo eso, también se \textit{como} gano. En base a eso una idea muy interesante para explorar era, al momento de recibir una recompensa realizar $learn(invertir(tablero), -recompensa)$ donde invertir funcionaría invirtiendo las fichas rojas por azules y viceversa. Si bien implementamos esto, dado que los resultados obtenidos no variaron significativamente y que nos encontrábamos al final de la etapa de experimentación, los siguientes apartados no reflejan ni tienen en cuenta esta posible mejora.
 
-En la siguiente sección terminaremos de definir la función $elegir\_accion()$ basandonos en distintas heuristicas para resolver el problema del Multi-armed bandit.
+En la siguiente sección terminaremos de definir la función $elegir\_accion()$ basándonos en distintas heurísticas para resolver el problema del Multi-armed bandit.
 
 \subsection{Estrategias de Movimiento}
 
-Aqui plantearemos distintas estrategias que utilizará nuestro jugador al momento de elegir si explorar nuevos caminos o utilizar el mejor conocido hasta el momento.
+Aquí plantearemos distintas estrategias que utilizará nuestro jugador al momento de elegir si explorar nuevos caminos o utilizar el mejor conocido hasta el momento.
 
-La primera heuristica que elegimos implementar es una estrategia greedy en donde el jugador tomara un camino random con probabilidad $\epsilon\%$ y en caso contrario utilice el mejor brazo conocido. Es claro que dependiendo de este valor $\epsilon\%$ nuestro algoritmo será mas propenso a explorar o a elegir el mejor camino posible.
+La primera heurística que elegimos implementar es una estrategia greedy en donde el jugador tomara un camino random con probabilidad $\epsilon\%$ y en caso contrario utilice el mejor brazo conocido. Es claro que dependiendo de este valor $\epsilon\%$ nuestro algoritmo será mas propenso a explorar o a elegir el mejor camino posible.
 
 La segunda estrategia es conocida como $\epsilon$-first: en este caso el jugador toma un camino random en las primeras $\epsilon$ iteraciones y luego toma el mejor camino conocido. Esperamos que en estas $\epsilon\%$ iteraciones el jugador explore una gran cantidad de estados posibles, tras los cuales podrá decidir con mas confianza cual es el mejor camino a elegir.
 
-Como ultima heuristica utilizaremos una estrategia Softmax: basada en una función probabilística, la estrategia Softmax se basa en darle probabilidades distintas a cada acción posible dependiendo de la recompensa esperada de cada una de ellas.
+Como ultima heurística utilizaremos una estrategia Softmax: basada en una función probabilística, la estrategia Softmax se basa en darle probabilidades distintas a cada acción posible dependiendo de la recompensa esperada de cada una de ellas.
 
 En particular la probabilidad de cada una de las acciones vendrá dada por:
 
@@ -118,35 +118,37 @@ Si bien esto hace que la complejidad de explorar cada una de las posibilidades s
 
 \section{Estrategias vs Jugador Random}
 
-Como primera instancia en la etapa de experimentación, haremos competir a un jugador q-learner contra un jugador que elige entre los posibles movimientos con probabilidad uniforme. Utilizaremos las tres estrategias enunciadas previamente para ver como se comporta cada una. 
+Como primera instancia en la etapa de experimentación, haremos competir a un jugador q-learner contra un jugador que elige entre los posibles movimientos con probabilidad uniforme (random). Utilizaremos las tres estrategias descriptas previamente para ver como se comporta cada una. 
 
-La metodología utilizada para observar como evoluciona el algoritmo de q-learning será la de hacer jugar a ambos jugadores $10000$ veces randomizando cual es el que comienza primero. Luego tomaremos estos resultados y cada $250$ juegos, graficaremos cuantas veces ganó el algoritmo q-learning. 
+La metodología utilizada para observar como evoluciona el algoritmo de q-learning será la de hacer jugar a ambos jugadores $10000$ veces randomizando cual es el que comienza primero en cada iteración. Luego tomaremos estos resultados y cada $250$ juegos, graficaremos cuantas veces ganó el algoritmo q-learning. 
 
-Para la estrategia greedy, eligiendo un $\epsilon=0.1$ obtuvimos los siguientes resultados:
+Para la estrategia greedy, tomando $\epsilon=0.1$ obtuvimos los siguientes resultados:
 
 \includegraphics[scale=0.5]{testing/greedy.png}
 
-%concluciones
+Puede observarse a medida que pasa el tiempo como el jugador q-learner converge empieza a converger a una estrategia ganadora, obteniendo al final del experimento un $16\%$ mas de aciertos que el jugador random.
 
-Para la estrategia $\epsilon$-first eligiendo un $\epsilon=10\%$, y los resultados fueron los siguientes:
+Para la estrategia $\epsilon$-first tomando $\epsilon=10\%$, resultados fueron los siguientes:
 
 \includegraphics[scale=0.5]{testing/ef.png}
 
-Puede verse como en el primer $10\%$ de las iteraciones el algoritmo gana la mitad de las veces y pierde la otra mitad, lo que era de esperarse para una política completamente random.
+Puede verse como en el primer $10\%$ de las iteraciones el algoritmo gana la mitad de las veces y pierde la otra mitad, lo que era de esperarse para una política completamente random. Pasadas esta cantidad de iteraciones, puede verse un repentino crecimiento en la cantidad de partidas ganadas, llegando al final a casi un $32\%$ mas de aciertos que su adversario.
 
 Con la tercera política Soft-Max, decidimos utilizar una temperatura inicial igual a $1$ y una función de calor que decirse de manera logarítmica con cada iteración:
 
 \includegraphics[scale=0.5]{testing/softmax.png}
 
-%concluciones
+Aquí al igual que en los algoritmos vemos un crecimiento en la tasa de aciertos a medida que se cumplen una mayor cantidad de iteraciones. Aún así esperábamos una mayor diferencia comparado con los otros dos algoritmos, siendo este el que utiliza mas información de la matriz Q. Consideramos que posiblemente esto se debiera a que los parámetros particulares de este método estuvieran mal ajustados, pero tras intentar con diferentes valores, no logramos obtener una mejora notable.
+
+A modo de conclusión, podemos decir que la heurística que se divide en una etapa puramente exploratoria y otra donde se utiliza esta información resultó ser la mas efectiva. Posiblemente esto se deba a que en la fase exploratoria se llegan a explorar muchos caminos diferentes de los cuales en la etapa de "explotación" utilizaremos el mejor. En cambio en estrategias como greedy y softmax, al tener siempre una probabilidad considerable de elegir el mejor camino estemos sesgando al algoritmo para intentar llegar siempre a la misma solución o a soluciones similares que tal vez no sean las óptimas para ese juego en particular.
 
 \subsection{Performance de dos q-learners compitiendo}
 
-En esta sección analizaremos el comportamiento de dos jugadores q learners (ambos utilizando una estrategia e-first) compitiendo entre si y aprendiendo al mismo tiempo. Lo que esperamos observar es que tras un periodo de tiempo donde ambos jugadores obtienen una tasa de aciertos cercano al $50 \%$ esta taza empiece converger a un numero mas bajo a medida que ambos converjan a una misma estrategia ganadora. Los resultados obtenidos fueron los siguientes:
+En esta sección analizaremos el comportamiento de dos jugadores q-learners (ambos utilizando una estrategia greedy) compitiendo entre si y aprendiendo al mismo tiempo. Lo que esperamos observar es que tras un periodo de tiempo donde ambos jugadores obtienen una tasa de aciertos cercano al $50 \%$ esta taza empiece converger a un numero mas bajo a medida que ambos converjan a una misma estrategia ganadora y empaten en mas oportunidades. Los resultados obtenidos fueron los siguientes:
 
 \includegraphics[scale=0.5]{testing/qvsq.png}
 
-Se realizó la misma experimentación con las otras dos estrategias obteniéndose resultados similares en ambos casos. Esto aproxima a los valores esperados, una hipótesis posible es que el jugador que juega primero tenga mas ventaja que el que juega segundo y por lo tanto, al estar randomizado el orden en que empiezan, la mitad de las veces gane uno y la otra mitad gane el otro. Para testear esto modificamos el programa para que el jugador 1 siempre comience primero y el jugador dos siempre comience segundo:
+Se realizó la misma experimentación con las otras dos estrategias obteniéndose resultados similares en ambos casos. Esto no aproxima a los valores esperados, una hipótesis posible es que el jugador que juega primero tenga mas ventaja que el que juega segundo y por lo tanto, al estar randomizado el orden en que empiezan, la mitad de las veces gane uno y la otra mitad gane el otro. Para testear esto modificamos el programa para que el jugador 1 siempre comience primero y el jugador dos siempre comience segundo:
 
 \includegraphics[scale=0.5]{testing/qvsq2.png}
 
@@ -154,12 +156,12 @@ La hipótesis parece confirmarse dado que el primer jugador obtiene un $20 \%$ m
 
 \subsection{Performance al cambiar la inicialización de Q}
 
-En esta sección buscaremos ver que sucede al variar entre distintos valores iniciales la matriz de Q. Para ello utilizaremos un jugador random y un jugador q learning con estrategia greedy y variaremos Q. Como primer experimento cambiaremos el valor inicial de $1$ a $0$. De esta manera esperamos desalentar la fase de exploración del algoritmo y que se guíe en mayor grado por el camino óptimo encontrado hasta el momento. Los resultados fueron:
+En el siguiente experimento buscamos ver que sucede al variar entre distintos valores iniciales la matriz de Q. Para ello utilizaremos un jugador random y un jugador q-learning con estrategia greedy y variaremos Q. Como primer experimento cambiaremos el valor inicial de $1$ a $0$. De esta manera esperamos desalentar la fase de exploración del algoritmo y que se guíe en mayor grado por el camino óptimo encontrado hasta el momento. Los resultados fueron:
 
 \includegraphics[scale=0.5]{testing/variarq.png}
 
-Los resultados no parecen ser muy afectados por esta variación. Otra alternativa intermedia que ideamos podría ser iniciar los valores de Q con valores aleatorios en un rango definido de esa manera randomizando un poco mas que caminos son explorados y cuales no. En el siguiente experimento la matriz Q esta inicializada de con distribución uniforme en el rango $[-1,1]$:
+Los resultados no parecen ser muy afectados por este cambio. Otra alternativa intermedia que ideamos podría ser iniciar los valores de Q con valores aleatorios en un rango definido de esa manera randomizando un poco mas que caminos son explorados y cuales no. Esperamos que de esa manera se exploren caminos que tal vez en otras circunstancias no fueran explorados y que esto mejore la performance a largo plazo. En el siguiente experimento la matriz Q esta inicializada de con distribución uniforme en el rango $[-1,1]$:
 
 \includegraphics[scale=0.5]{testing/variarq2.png}
 
-Como puede verse este tipo de exploración resulto en resultados muy malos, introducidos posiblemente por la dificultad de elegir un buen camino introduciendo un valor tan alto de ruido en el Q inicial.
+Como puede verse este tipo de exploración arrojó resultados muy malos, inducidos posiblemente por la dificultad de elegir un buen camino habiendo una tasa tan alta de ruido en el Q inicial.
