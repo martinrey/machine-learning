@@ -1,19 +1,20 @@
 import random
 import math
 
-class Cuatro_en_linea():
-    def __init__(self, jugador1, jugador2,width=8, height=8):
+
+class CuatroEnLinea(object):
+    def __init__(self, jugador1, jugador2, width=8, height=8):
         self.width = width
         self.height = height
-        self.tablero = [[] for i in range(width)]
+        self.tablero = [[] for _ in range(width)]
         self.player1 = jugador1
         self.player2 = jugador2
         self.player1_turn = random.choice([True, False])
         self.pieza_player_1 = '1'
         self.pieza_player_2 = '0'
 
-    def jugar_ficha(self,color,posicion):
-        if posicion > -1 and posicion < self.width:
+    def jugar_ficha(self, color, posicion):
+        if -1 < posicion < self.width:
             if len(self.tablero[posicion]) < self.height:
                 self.tablero[posicion].append(color)
             else:
@@ -21,33 +22,39 @@ class Cuatro_en_linea():
         else:
             print "error"
 
-    def jugador_gano(self,color):
+    def jugador_gano(self, color):
         for i in range(len(self.tablero)):
             for j in range(self.width):
+                # checkeo vertical
                 try:
-                    if all(self.tablero[i][j+k] == color for k in range(4)):
+                    if all(self.tablero[i][j + k] == color for k in range(4)):
                         return True
                 except IndexError:
                     pass
+
+                # checkeo horizontal
                 try:
-                    if all(self.tablero[i+k][j] == color for k in range(4)):
+                    if all(self.tablero[i + k][j] == color for k in range(4)):
                         return True
                 except IndexError:
                     pass
+
+                # checkeo diagonales
                 try:
-                    if all(self.tablero[i+k][j+k] == color for k in range(4)):
+                    if all(self.tablero[i + k][j + k] == color for k in range(4)):
                         return True
                 except IndexError:
                     pass
+
                 try:
-                    if all(self.tablero[i+k][j-k] == color for k in range(4)):
+                    if all(self.tablero[i + k][j - k] == color for k in range(4)):
                         return True
                 except IndexError:
                     pass
         return False
 
     def imprimir_tablero(self):
-        for i in range(self.height-1, -1, -1):
+        for i in range(self.height - 1, -1, -1):
             colores = []
             for j in range(len(self.tablero)):
                 try:
@@ -70,20 +77,21 @@ class Cuatro_en_linea():
             else:
                 player, char, other_player = self.player2, self.pieza_player_2, self.player1
             space = player.move(self.tablero)
-            self.jugar_ficha(char,space)
+            self.jugar_ficha(char, space)
             if self.jugador_gano(char):
                 player.reward(1, self.tablero)
                 other_player.reward(-1, self.tablero)
                 return char
-            if self.tablero_lleno(): # tie game
+            if self.tablero_lleno():  # tie game
                 player.reward(0.5, self.tablero)
                 other_player.reward(0.5, self.tablero)
                 return ' '
             other_player.reward(0, self.tablero)
             self.player1_turn = not self.player1_turn
 
+
 class Player(object):
-    def __init__(self,height=8, width=8):
+    def __init__(self, height=8, width=8):
         self.breed = "random"
         self.height = height
         self.width = width
@@ -102,19 +110,18 @@ class Player(object):
 
 
 class QLearningPlayer(Player):
-    def __init__(self,estrategia,height=8, width=8, alpha=0.4, gamma=0.9):
+    def __init__(self, estrategia, height=8, width=8, alpha=0.4, gamma=0.9):
+        super(QLearningPlayer, self).__init__(height, width)
         self.breed = "Qlearner"
         self.harm_humans = False
-        self.q = {} # (state, action) keys: Q values
-        #self.epsilon = epsilon # e-greedy chance of random exploration
-        self.alpha = alpha # learning rate
-        self.gamma = gamma # discount factor for future rewards
-        self.height = height
-        self.width = width
+        self.q = {}  # (state, action) keys: Q values
+        # self.epsilon = epsilon # e-greedy chance of random exploration
+        self.alpha = alpha  # learning rate
+        self.gamma = gamma  # discount factor for future rewards
         self.estrategia = estrategia
 
     def start_game(self, char):
-        self.last_board = (' ',)*9
+        self.last_board = (' ',) * 9
         self.last_move = None
 
     def getQ(self, state, action):
@@ -138,15 +145,15 @@ class QLearningPlayer(Player):
     def learn(self, state, action, reward, result_state):
         prev = self.getQ(state, action)
         maxqnew = max([self.getQ(result_state, a) for a in self.available_moves(state)])
-        self.q[(state, action)] = prev + self.alpha * ((reward + self.gamma*maxqnew) - prev)
+        self.q[(state, action)] = prev + self.alpha * ((reward + self.gamma * maxqnew) - prev)
 
 
-class estrategia_greedy():
-    def __init__(self,epsilon=0.1):
+class EstrategiaGreedy(object):
+    def __init__(self, epsilon=0.1):
         self.epsilon = epsilon
 
     def elegir_accion(self, qs):
-        if random.random() < self.epsilon: # explore!
+        if random.random() < self.epsilon:  # explore!
             return random.choice(range(len(qs)))
         maxQ = max(qs)
         if qs.count(maxQ) > 1:
@@ -157,14 +164,15 @@ class estrategia_greedy():
             i = qs.index(maxQ)
         return i
 
-class estrategia_e_first():
-    def __init__(self,epsilon=0.1,cantidad_trials=10000):
+
+class EstrategiaEFirst(object):
+    def __init__(self, epsilon=0.1, cantidad_trials=10000):
         self.epsilon = epsilon
         self.cantidad_trials = cantidad_trials
         self.contador = 0
 
     def elegir_accion(self, qs):
-        if self.contador < (self.epsilon*self.cantidad_trials)/100: # explore!
+        if self.contador < (self.epsilon * self.cantidad_trials) / 100:  # explore!
             self.contador += 1
             return random.choice(range(len(qs)))
         maxQ = max(qs)
@@ -176,29 +184,31 @@ class estrategia_e_first():
             i = qs.index(maxQ)
         return i
 
-class estrategia_softmax():
-    def __init__(self,temperatura_inicial=1):
+
+class EstrategiaSoftmax(object):
+    def __init__(self, temperatura_inicial=1):
         self.temperatura_inicial = temperatura_inicial
         self.contador = 1
 
     def elegir_accion(self, qs):
-        #levemente turbio
-        #calculo la temperatura
+        # calculo la temperatura
         self.contador += 0.1
         temperatura = self.temperatura_inicial / math.log(self.contador)
-        #calculo la probabilidad de tomar cada accion
-        probabilidades = [math.exp(qs[i]/(temperatura*1.0)) for i in range(len(qs))]
+        # calculo la probabilidad de tomar cada accion
+        probabilidades = [math.exp(qs[i] / (temperatura * 1.0)) for i in range(len(qs))]
         probabilidad_total = sum(probabilidades)
-        probabilidades = [probabilidad/probabilidad_total for probabilidad in probabilidades]
+        probabilidades = [probabilidad / probabilidad_total for probabilidad in probabilidades]
         r = random.random()
         index = 0
         while r >= 0 and index < len(probabilidades):
             r -= probabilidades[index]
             index += 1
-        return index -1
+        return index - 1
 
-#TODO: Contextual-Epsilon-greedy strategy
-#Adversarial Bandit
+
+# Falto implementar:
+#   - Contextual-Epsilon-greedy strategy
+#   - Adversarial Bandit
 
 
 def print_promedios(resultados):
@@ -215,15 +225,14 @@ def print_promedios(resultados):
             contador = 0
 
 
-
 if __name__ == "__main__":
     resultado_X = 0
     resultado_O = 0
-    p1 = QLearningPlayer(estrategia_greedy())
-    p2 = QLearningPlayer(estrategia_greedy())
+    p1 = QLearningPlayer(EstrategiaGreedy())
+    p2 = QLearningPlayer(EstrategiaGreedy())
     resultados = []
     for i in range(50000):
-        t = Cuatro_en_linea(p1, p2)
+        t = CuatroEnLinea(p1, p2)
         resultado = t.jugar()
         if resultado == '1':
             resultados.append(1)
@@ -232,6 +241,5 @@ if __name__ == "__main__":
             resultados.append(0)
             resultado_O += 1
     print_promedios(resultados)
-    #print "Cantidad De Veces que gano Qlearner: " + str(resultado_X)
-    #print "Cantidad De Veces que gano Random: " + str(resultado_O)
-
+    # print "Cantidad De Veces que gano Qlearner: " + str(resultado_X)
+    # print "Cantidad De Veces que gano Random: " + str(resultado_O)
